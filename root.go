@@ -5,6 +5,7 @@ import (
 	"crypto/rsa"
 	"encoding/base64"
 	"fmt"
+	"github.com/PuerkitoBio/goquery"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cobra"
 	"gopkg.in/resty.v1"
@@ -12,6 +13,7 @@ import (
 	"log"
 	"math/big"
 	"net/http/cookiejar"
+	"strings"
 )
 
 var (
@@ -63,23 +65,32 @@ func Run() {
 
 		body := getLoginPageRes.String()
 		fmt.Println(body)
-		// dom, err := goquery.NewDocumentFromReader(strings.NewReader(body))
-		// if err != nil {
-		// 	log.Fatalln(err)
-		// }
+		dom, err := goquery.NewDocumentFromReader(strings.NewReader(body))
+		if err != nil {
+			log.Fatal(err)
+		}
+		csrfToken, exists := dom.Find("[name=csrfmiddlewaretoken]").Attr("value")
+		if !exists {
+			panic("未找到 csrfmiddlewaretoken")
+		}
 
-		fmt.Println(encrypt(""))
-
-		client.R().
-			SetFormData(map[string]string{
-				"csrfmiddlewaretoken": "",
-				"phoneNumCipherb64":   "",
-				"usernameCipherb64":   "",
-				"passwordCipherb64":   "",
-				"account-type":        "2",
-				"src":                 "None",
-			}).
+		data := map[string]string{
+			"csrfmiddlewaretoken": csrfToken,
+			"phoneNumCipherb64":   encrypt(""),
+			"usernameCipherb64":   encrypt(""),
+			"passwordCipherb64":   encrypt(""),
+			"account-type":        "2",
+			"src":                 "None",
+		}
+		loginRes, err := client.R().
+			SetFormData(data).
 			Post("http://dotamax.com/accounts/login/")
+		if err != nil {
+			panic(err)
+		}
+
+		fmt.Println(data)
+		fmt.Println(loginRes.Header())
 	}()
 
 	serve()
