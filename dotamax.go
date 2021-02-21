@@ -3,23 +3,24 @@ package really
 import (
 	"crypto/rand"
 	"crypto/rsa"
-	"database/sql"
 	"encoding/base64"
+	"fmt"
 	"github.com/PuerkitoBio/goquery"
 	"github.com/go-resty/resty/v2"
+	"gorm.io/gorm"
 	"log"
 	"math/big"
 	"regexp"
 	"strconv"
 	"strings"
-	"time"
 )
 
 var r = regexp.MustCompile("\\d+")
 
-func loadRecentMatches(client *resty.Client, db *sql.DB) func() {
+func loadRecentMatches(client *resty.Client, db *gorm.DB) func() {
 	return func() {
-		playerDetailRes, err := client.R().Get("http://dotamax.com/player/detail/122155653/")
+		playerId := "122155653"
+		playerDetailRes, err := client.R().Get(fmt.Sprintf("http://dotamax.com/player/detail/%s/", playerId))
 		if err != nil {
 			log.Printf("获取用户详情失败: %+v, 尝试重新登录\n", err)
 			client = loginDotaMax()
@@ -31,33 +32,56 @@ func loadRecentMatches(client *resty.Client, db *sql.DB) func() {
 			return
 		}
 
-		playerDetails := dom.Find(".table-player-detail")
-		// Get(0): 常用英雄
-		// Get(1): 最近比赛
-		// Get(2): 最高记录
-		s := dom.FindNodes(playerDetails.Get(1))
-		s.Find("tr").Each(func(i int, cs *goquery.Selection) {
-			// 每一场比赛
-			var lines []string
-			cs.Find("td").Each(func(i int, cs2 *goquery.Selection) {
-				lines = append(lines, strings.TrimSpace(cs2.Text()))
-			})
-			hero := lines[0]
-			matchId := r.FindString(lines[1])
-			matchMode := strings.TrimSpace(strings.SplitAfter(lines[1], matchId)[1])
-			result := lines[3]
-			kda := lines[4]
-			level := lines[5]
-			log.Printf("英雄: %s, 比赛ID: %s, 比赛模式: %s, 结果: %s, KDA: %s, 等级: %s\n", hero, matchId, matchMode, result, kda, level)
+		matchPlayers := getMatchPlayers(dom, dom.Find(".table-player-detail"), playerId)
 
-			sqlStmt := `INSERT INTO "match_player" ("match_id", "player_id", "hero", "match_mode", "match_result", "match_kda", "match_level", "create_time", "modify_time" ) 
-						VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
-			_, err := db.Exec(sqlStmt, matchId, "122155653", hero, matchMode, result, kda, level, time.Now(), time.Now())
-			if err != nil {
-				panic(err)
+		for _, mp := range matchPlayers {
+			s := map[string]interface{}{
+				"match_id":  mp.MatchId,
+				"player_id": playerId,
 			}
-		})
+			var matchPlayer MatchPlayer
+			db.Where(s).First(&matchPlayer)
+			if matchPlayer.ID == 0 {
+				// 新比赛
+				log.Printf("探测到新的比赛：%s", mp)
+				db.Create(mp)
+			}
+		}
 	}
+}
+
+func getMatchPlayers(dom *goquery.Document, playerDetails *goquery.Selection, playerId string) []*MatchPlayer {
+	// Get(0): 常用英雄
+	// Get(1): 最近比赛
+	// Get(2): 最高记录
+	s := dom.FindNodes(playerDetails.Get(1))
+
+	var matchPlayers []*MatchPlayer
+	s.Find("tr").Each(func(i int, cs *goquery.Selection) {
+		// 每一场比赛
+		var lines []string
+		cs.Find("td").Each(func(i int, cs2 *goquery.Selection) {
+			lines = append(lines, strings.TrimSpace(cs2.Text()))
+		})
+		hero := lines[0]
+		matchId := r.FindString(lines[1])
+		matchMode := strings.TrimSpace(strings.SplitAfter(lines[1], matchId)[1])
+		result := lines[3]
+		kda := lines[4]
+		level := lines[5]
+
+		matchPlayer := &MatchPlayer{
+			MatchId:     matchId,
+			PlayerId:    playerId,
+			Hero:        hero,
+			MatchMode:   matchMode,
+			MatchResult: result,
+			MatchKDA:    kda,
+			MatchLevel:  level,
+		}
+		matchPlayers = append(matchPlayers, matchPlayer)
+	})
+	return matchPlayers
 }
 
 func loginDotaMax() *resty.Client {

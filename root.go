@@ -1,12 +1,12 @@
 package really
 
 import (
-	"database/sql"
 	"encoding/json"
 	"github.com/go-resty/resty/v2"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/robfig/cron/v3"
 	"github.com/spf13/cobra"
+	"gorm.io/gorm"
 	"log"
 	"net/http"
 	"net/http/cookiejar"
@@ -83,9 +83,9 @@ func initRestyClient(c *configuration) (*resty.Client, *url.URL) {
 }
 
 // startCron 定时任务相关逻辑
-func startCron(client *resty.Client, db *sql.DB) {
+func startCron(client *resty.Client, db *gorm.DB) {
 	c := cron.New()
-	c.AddFunc("@every 1s", loadRecentMatches(client, db))
+	c.AddFunc("@every 1m", loadRecentMatches(client, db))
 
 	c.Start()
 }
