@@ -19,6 +19,7 @@ func initDB() *gorm.DB {
 	}
 
 	err = db.AutoMigrate(&MatchPlayer{})
+	err = db.AutoMigrate(&SubscribePlayer{})
 	if err != nil {
 		panic(err)
 	}
@@ -39,4 +40,12 @@ type MatchPlayer struct {
 
 func (m MatchPlayer) String() string {
 	return fmt.Sprintf("英雄: %s, 比赛ID: %s, 比赛模式: %s, 结果: %s, KDA: %s, 等级: %s", m.Hero, m.MatchId, m.MatchMode, m.MatchResult, m.MatchKDA, m.MatchLevel)
+}
+
+// SubscribePlayer 订阅 dotamax 更新
+type SubscribePlayer struct {
+	GroupId  string // 群ID
+	PlayerId string // 玩家ID
+	Alias    string // 别名
+	gorm.Model
 }

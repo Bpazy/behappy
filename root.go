@@ -53,7 +53,7 @@ func Run() {
 
 	startCron(client, db)
 
-	serveMirai()
+	serveMirai(db)
 }
 
 // initRestyClient 初始化 http client

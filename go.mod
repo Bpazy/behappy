@@ -21,6 +21,7 @@ require (
 	golang.org/x/crypto v0.0.0-20210220033148-5ea612d1eb83 // indirect
 	golang.org/x/sys v0.0.0-20210220050731-9a76102bfb43 // indirect
 	google.golang.org/protobuf v1.25.0 // indirect
+	gopkg.in/errgo.v2 v2.1.0
 	gopkg.in/resty.v1 v1.12.0
 	gorm.io/driver/sqlite v1.1.4
 	gorm.io/gorm v1.20.12
