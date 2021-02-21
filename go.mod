@@ -3,6 +3,7 @@ module github.com/Bpazy/really
 go 1.15
 
 require (
+	github.com/Bpazy/dotamax v1.0.0
 	github.com/PuerkitoBio/goquery v1.6.1
 	github.com/cvilsmeier/sqinn-go v1.1.0
 	github.com/gin-gonic/gin v1.6.3
