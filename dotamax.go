@@ -1,6 +1,7 @@
 package really
 
 import (
+	"errors"
 	"fmt"
 	"github.com/Bpazy/dotamax"
 	"github.com/PuerkitoBio/goquery"
@@ -35,9 +36,7 @@ func loadRecentMatches(client *resty.Client, db *gorm.DB) func() {
 				"match_id":  mp.MatchId,
 				"player_id": playerId,
 			}
-			var matchPlayer MatchPlayer
-			db.Where(s).First(&matchPlayer)
-			if matchPlayer.ID == 0 {
+			if err := db.Where(s).First(&MatchPlayer{}).Error; errors.Is(err, gorm.ErrRecordNotFound) {
 				// 新比赛
 				log.Printf("探测到新的比赛：%s", mp)
 				db.Create(mp)
