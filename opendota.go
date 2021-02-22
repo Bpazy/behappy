@@ -9,10 +9,12 @@ import (
 
 func SubscribeFunc() {
 	var sps []*SubscribePlayer
-	if err := db.Find(&sps).Error; err != nil {
+	if err := db.Distinct("player_id").Find(&sps).Error; err != nil {
 		log.Println("没有订阅的玩家")
 	}
 
+	// 新比赛
+	var newMatchPlayers []*MatchPlayer
 	for _, sp := range sps {
 		playerDetailRes, err := client.R().Get(fmt.Sprintf("https://api.opendota.com/api/players/%s/matches?limit=1", sp.PlayerId))
 		if err != nil {
@@ -29,12 +31,21 @@ func SubscribeFunc() {
 				"player_id": sp.PlayerId,
 			}
 			if err := db.Where(s).First(&MatchPlayer{}).Error; errors.Is(err, gorm.ErrRecordNotFound) {
-				// 新比赛
+				newMatchPlayers = append(newMatchPlayers, mp)
 				log.Printf("探测到新的比赛：%d\n", mp.MatchID)
-				pretty := fmt.Sprintf("英雄: %s\n等级: %s\n\n击杀: %d, 死亡: %d, 助攻: %d", mp.HeroName(), mp.SkillString(), mp.Kills, mp.Deaths, mp.Assists)
-				SendGroupMessage(sp.GroupId, fmt.Sprintf("「%s」有新「%s」的比赛了: \n\n%s", sp.Name(), mp.MatchResultString(), pretty))
 				db.Create(mp)
 			}
+		}
+	}
+
+	if err := db.Find(&sps).Error; err != nil {
+		log.Println("没有订阅的玩家")
+	}
+	// 逐个群通知
+	for _, mp := range newMatchPlayers {
+		for _, sp := range sps {
+			pretty := fmt.Sprintf("英雄: %s\n等级: %s\n\n击杀: %d, 死亡: %d, 助攻: %d", mp.HeroName(), mp.SkillString(), mp.Kills, mp.Deaths, mp.Assists)
+			SendGroupMessage(sp.GroupId, fmt.Sprintf("「%s」有新「%s」的比赛了: \n\n%s", sp.Name(), mp.MatchResultString(), pretty))
 		}
 	}
 }

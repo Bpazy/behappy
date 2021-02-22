@@ -33,13 +33,27 @@ func serveMirai() {
 			if len(submatch) != 3 {
 				return
 			}
-			sp := SubscribePlayer{
+
+			query := &SubscribePlayer{
 				GroupId:  e.Sender.Group.ID,
 				PlayerId: submatch[1],
-				Alias:    submatch[2],
 			}
-			db.Create(&sp)
-			SendGroupMessage(e.Sender.Group.ID, "订阅成功")
+			savedSP := SubscribePlayer{}
+			if err := db.Where(query).First(&savedSP).Error; err != nil {
+				// 不存在
+				db.Create(&SubscribePlayer{
+					GroupId:  e.Sender.Group.ID,
+					PlayerId: submatch[1],
+					Alias:    submatch[2],
+				})
+				SendGroupMessage(e.Sender.Group.ID, "订阅成功")
+			} else {
+				// 存在则更新
+				savedSP.Alias = submatch[2]
+				db.Save(&savedSP)
+				SendGroupMessage(e.Sender.Group.ID, "更新订阅成功")
+			}
+
 		}
 
 		c.JSON(200, nil)
