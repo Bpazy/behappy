@@ -2,7 +2,7 @@ NAME=really
 BINDIR=bin
 VERSION=$(shell git describe --tags || echo "unknownversion")
 LDFLAGS="-s -w -X github.com/Bpazy/really.buildVer=${VERSION}"
-GOBUILD=CGO_ENABLED=0 go build -ldflags=${LDFLAGS}
+GOBUILD=go build -ldflags=${LDFLAGS}
 CMDPATH=./cmd/really
 
 all: linux-amd64 darwin-amd64 windows-amd64 # Most used
