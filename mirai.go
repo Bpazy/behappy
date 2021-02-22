@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"gopkg.in/errgo.v2/fmt/errors"
-	"gorm.io/gorm"
 	"io/ioutil"
 	"log"
 	"regexp"
@@ -16,7 +15,7 @@ import (
 var subscribeR = regexp.MustCompile("订阅\\s*(\\d+)")
 
 // serveMirai 开启 Mirai事件上报监听器
-func serveMirai(db *gorm.DB) {
+func serveMirai() {
 	r := gin.New()
 	r.Use(gin.Recovery())
 	r.POST("/post", func(c *gin.Context) {
@@ -129,7 +128,7 @@ func (e Event) String() string {
 	}
 
 	if e.isEvent() {
-		return fmt.Sprintf("%s Event from %s", e.Type, e.QQ)
+		return fmt.Sprintf("%s Event from %d", e.Type, e.QQ)
 	}
 
 	return e.MessageChain.PlainText()

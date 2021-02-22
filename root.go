@@ -46,14 +46,19 @@ func Execute() error {
 	return rootCmd.Execute()
 }
 
+var (
+	client *resty.Client
+	db     *gorm.DB
+)
+
 func Run() {
-	db := initDB()
+	db = initDB()
 
-	client := loginDotaMax()
+	client = loginDotaMax(true)
 
-	startCron(client, db)
+	startCron()
 
-	serveMirai(db)
+	serveMirai()
 }
 
 // initRestyClient 初始化 http client
@@ -83,7 +88,7 @@ func initRestyClient(c *configuration) (*resty.Client, *url.URL) {
 }
 
 // startCron 定时任务相关逻辑
-func startCron(client *resty.Client, db *gorm.DB) {
+func startCron() {
 	c := cron.New()
 	c.AddFunc("@every 1m", loadRecentMatches(client, db))
 

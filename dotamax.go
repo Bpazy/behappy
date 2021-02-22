@@ -14,33 +14,47 @@ import (
 
 var r = regexp.MustCompile("\\d+")
 
-func loadRecentMatches(client *resty.Client, db *gorm.DB) func() {
-	return func() {
-		playerId := "122155653"
-		playerDetailRes, err := client.R().Get(fmt.Sprintf("http://dotamax.com/player/detail/%s/", playerId))
-		if err != nil {
-			log.Printf("获取用户详情失败: %+v, 尝试重新登录\n", err)
-			client = loginDotaMax()
-			return
-		}
-		dom, err := goquery.NewDocumentFromReader(strings.NewReader(playerDetailRes.String()))
-		if err != nil {
-			log.Printf("解析用户详情 DOM 失败: %+v\n", err)
-			return
-		}
+func SubscribeFunc() {
+	var sps []*SubscribePlayer
+	if err := db.Find(&sps).Error; err != nil {
+		log.Println("没有订阅的玩家")
+	}
 
-		matchPlayers := getMatchPlayers(dom, dom.Find(".table-player-detail"), playerId)
+	for _, sp := range sps {
+		loadRecentMatches(sp.PlayerId)
+	}
+}
 
-		for _, mp := range matchPlayers {
-			s := map[string]interface{}{
-				"match_id":  mp.MatchId,
-				"player_id": playerId,
-			}
-			if err := db.Where(s).First(&MatchPlayer{}).Error; errors.Is(err, gorm.ErrRecordNotFound) {
-				// 新比赛
-				log.Printf("探测到新的比赛：%s", mp)
-				db.Create(mp)
-			}
+func loadRecentMatches(playerId string) {
+	playerDetailRes, err := client.R().Get(fmt.Sprintf("http://dotamax.com/player/detail/%s/", playerId))
+	if err != nil {
+		log.Printf("获取用户详情失败: %+v, 尝试重新登录\n", err)
+		client = loginDotaMax(false)
+		return
+	}
+	s := playerDetailRes.String()
+	if strings.Contains(s, "社交账号登录") {
+		log.Printf("获取用户详情失败: %+v, 尝试重新登录\n", err)
+		client = loginDotaMax(false)
+		return
+	}
+	dom, err := goquery.NewDocumentFromReader(strings.NewReader(s))
+	if err != nil {
+		log.Printf("解析用户详情 DOM 失败: %+v\n", err)
+		return
+	}
+
+	matchPlayers := getMatchPlayers(dom, dom.Find(".table-player-detail"), playerId)
+
+	for _, mp := range matchPlayers {
+		s := map[string]interface{}{
+			"match_id":  mp.MatchId,
+			"player_id": playerId,
+		}
+		if err := db.Where(s).First(&MatchPlayer{}).Error; errors.Is(err, gorm.ErrRecordNotFound) {
+			// 新比赛
+			log.Printf("探测到新的比赛：%s", mp)
+			db.Create(mp)
 		}
 	}
 }
@@ -49,6 +63,10 @@ func getMatchPlayers(dom *goquery.Document, playerDetails *goquery.Selection, pl
 	// Get(0): 常用英雄
 	// Get(1): 最近比赛
 	// Get(2): 最高记录
+	if playerDetails.Length() == 0 {
+		log.Println("查询玩家详情异常")
+		return []*MatchPlayer{}
+	}
 	s := dom.FindNodes(playerDetails.Get(1))
 
 	var matchPlayers []*MatchPlayer
@@ -79,12 +97,12 @@ func getMatchPlayers(dom *goquery.Document, playerDetails *goquery.Selection, pl
 	return matchPlayers
 }
 
-func loginDotaMax() *resty.Client {
+func loginDotaMax(useCookie bool) *resty.Client {
 	config := InitConfig()
 	client, u := initRestyClient(config)
 
 	// 如果有 Cookie 则跳过登录
-	if len(client.GetClient().Jar.Cookies(u)) != 0 {
+	if useCookie && len(client.GetClient().Jar.Cookies(u)) != 0 {
 		log.Printf("使用 Cookie 登录\n")
 		return client
 	}
