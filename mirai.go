@@ -12,7 +12,7 @@ import (
 	"strings"
 )
 
-var subscribeR = regexp.MustCompile("订阅\\s*(\\d+)")
+var subscribeR = regexp.MustCompile("订阅\\s+(\\d+)\\s+别名\\s+(.+)")
 
 // serveMirai 开启 Mirai事件上报监听器
 func serveMirai() {
@@ -30,15 +30,16 @@ func serveMirai() {
 
 		if e.IsGroupMessage() {
 			submatch := subscribeR.FindStringSubmatch(e.MessageChain.PlainText())
-			if len(submatch) != 2 {
+			if len(submatch) != 3 {
 				return
 			}
 			sp := SubscribePlayer{
 				GroupId:  e.Sender.Group.ID,
 				PlayerId: submatch[1],
-				Alias:    "",
+				Alias:    submatch[2],
 			}
 			db.Create(&sp)
+			SendGroupMessage(e.Sender.Group.ID, "订阅成功")
 		}
 
 		c.JSON(200, nil)
@@ -170,7 +171,12 @@ type SendMessageResponse struct {
 
 func SendGroupMessage(target int, text string) {
 	response := SendMessageResponse{}
-	JsonUnmarshal(PostJson("http://localhost:8080/sendGroupMessage", NewSendMessage(target, text)), &response)
+	b, err := PostJson("http://localhost:8080/sendGroupMessage", NewSendMessage(target, text))
+	if err != nil {
+		log.Printf("发送群消息失败: %+v\n", err)
+		return
+	}
+	JsonUnmarshal(b, &response)
 	if response.Code != 0 {
 		log.Printf("发送消息失败: %+v", response)
 	}
@@ -179,9 +185,12 @@ func SendGroupMessage(target int, text string) {
 var session string
 
 func Auth() {
-	rb := PostJson("http://localhost:8080/auth", map[string]string{
+	rb, err := PostJson("http://localhost:8080/auth", map[string]string{
 		"authKey": "1234567890",
 	})
+	if err != nil {
+		log.Fatalf("Mirai Auth 失败: %+v\n", err)
+	}
 	type AuthResult struct {
 		Code    int    `json:"code"`
 		Session string `json:"session"`
@@ -189,22 +198,28 @@ func Auth() {
 	var authResult AuthResult
 	JsonUnmarshal(rb, &authResult)
 	if authResult.Code != 0 {
-		log.Printf("认证失败，请检查 authKey\n")
+		log.Fatalf("auth 失败，请检查 authKey\n")
 		return
 	}
+	log.Println("Mirai auth 成功")
 
 	type VerifyResult struct {
 		Code int    `json:"code"`
 		Msg  string `json:"msg"`
 	}
 	response := VerifyResult{}
-	JsonUnmarshal(PostJson("http://localhost:8080/verify", map[string]interface{}{
+	b, err := PostJson("http://localhost:8080/verify", map[string]interface{}{
 		"sessionKey": authResult.Session,
 		"qq":         config.Mirai.BotQQ,
-	}), &response)
+	})
+	if err != nil {
+		log.Fatalf("verify session 失败，请检查配置文件中的 BotQQ: %+v\n", err)
+	}
+	JsonUnmarshal(b, &response)
 	if response.Code != 0 {
-		log.Printf("校验 Session 失败: %+v\n", response)
+		log.Fatalf("verify session 失败，请检查配置文件中的 BotQQ: %+v\n", response)
 	}
 
+	log.Println("Mirai session verify 成功")
 	session = authResult.Session
 }
