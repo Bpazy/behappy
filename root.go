@@ -67,7 +67,7 @@ func startOpenDota() {
 	}
 
 	c := cron.New()
-	c.AddFunc("@every 10s", func() {
+	c.AddFunc("@every 1m", func() {
 		SubscribeFunc()
 	})
 
