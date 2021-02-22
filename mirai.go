@@ -34,7 +34,7 @@ func serveMirai() {
 				return
 			}
 			sp := SubscribePlayer{
-				GroupId:  strconv.Itoa(e.Sender.Group.ID),
+				GroupId:  e.Sender.Group.ID,
 				PlayerId: submatch[1],
 				Alias:    "",
 			}
@@ -43,8 +43,12 @@ func serveMirai() {
 
 		c.JSON(200, nil)
 	})
+
+	Auth()
+
 	log.Fatal(r.Run("0.0.0.0:10000"))
 }
+
 func (cs MessageChains) PlainText() string {
 	var ret string
 	for _, c := range cs {
@@ -101,8 +105,7 @@ func (e Event) isEvent() bool {
 	return strings.Contains(e.Type, "Event")
 }
 
-// MessageChains Mirai 上报事件中的 Message
-type MessageChains []struct {
+type MessageChain struct {
 	Type    string      `json:"type"`
 	ID      int         `json:"id,omitempty"`
 	Time    int         `json:"time,omitempty"`
@@ -115,6 +118,9 @@ type MessageChains []struct {
 	FaceID  int         `json:"faceId,omitempty"`
 	Name    string      `json:"name,omitempty"`
 }
+
+// MessageChains Mirai 上报事件中的 Message
+type MessageChains []MessageChain
 
 func (e Event) String() string {
 	if e.IsGroupMessage() {
@@ -140,4 +146,65 @@ func NewEvent(b []byte) *Event {
 		panic(errors.Newf("反序列化JSON错误: %+v", err))
 	}
 	return &e
+}
+
+type SendMessage struct {
+	SessionKey   string        `json:"sessionKey"`
+	Target       int           `json:"target"`
+	MessageChain MessageChains `json:"messageChain"`
+}
+
+func NewSendMessage(target int, text string) *SendMessage {
+	return &SendMessage{
+		SessionKey:   session,
+		Target:       target,
+		MessageChain: MessageChains{MessageChain{Type: "Plain", Text: text}},
+	}
+}
+
+type SendMessageResponse struct {
+	Code      int    `json:"code"`
+	Msg       string `json:"msg"`
+	MessageID int    `json:"messageId"`
+}
+
+func SendGroupMessage(target int, text string) {
+	response := SendMessageResponse{}
+	JsonUnmarshal(PostJson("http://localhost:8080/sendGroupMessage", NewSendMessage(target, text)), &response)
+	if response.Code != 0 {
+		log.Printf("发送消息失败: %+v", response)
+	}
+}
+
+var session string
+
+func Auth() {
+	rb := PostJson("http://localhost:8080/auth", map[string]string{
+		"authKey": "1234567890",
+	})
+	type AuthResult struct {
+		Code    int    `json:"code"`
+		Session string `json:"session"`
+	}
+	var authResult AuthResult
+	JsonUnmarshal(rb, &authResult)
+	if authResult.Code != 0 {
+		log.Printf("认证失败，请检查 authKey\n")
+		return
+	}
+
+	type VerifyResult struct {
+		Code int    `json:"code"`
+		Msg  string `json:"msg"`
+	}
+	response := VerifyResult{}
+	JsonUnmarshal(PostJson("http://localhost:8080/verify", map[string]interface{}{
+		"sessionKey": authResult.Session,
+		"qq":         config.Mirai.BotQQ,
+	}), &response)
+	if response.Code != 0 {
+		log.Printf("校验 Session 失败: %+v\n", response)
+	}
+
+	session = authResult.Session
 }

@@ -1,73 +1,30 @@
 package really
 
 import (
-	"encoding/json"
 	"fmt"
-	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/viper"
 	"log"
-	"net/http"
 	"os"
 	"path/filepath"
-	"reflect"
-	"time"
 )
 
 // configuration 总配置
 type configuration struct {
-	DotaMax *dotaMaxConfig `mapstructure:"dotamax"`
+	Mirai *miraiConfig `mapstructure:"mirai"`
 }
 
-// dotaMaxConfig Dota Max 相关配置
-type dotaMaxConfig struct {
-	Username string `mapstructure:"username"`
-	Password string `mapstructure:"password"`
-	Cookies  string `mapstructure:"cookies"`
+// miraiConfig Dota Max 相关配置
+type miraiConfig struct {
+	BotQQ string `mapstructure:"botqq"`
 }
 
 // check 校验配置文件必填项
 func (c *configuration) check() {
 
 }
-func ToTimeHookFunc() mapstructure.DecodeHookFunc {
-	return func(
-		f reflect.Type,
-		t reflect.Type,
-		data interface{}) (interface{}, error) {
-		if t != reflect.TypeOf(time.Time{}) {
-			return data, nil
-		}
 
-		switch f.Kind() {
-		case reflect.String:
-			return time.Parse(time.RFC3339, data.(string))
-		case reflect.Float64:
-			return time.Unix(0, int64(data.(float64))*int64(time.Millisecond)), nil
-		case reflect.Int64:
-			return time.Unix(0, data.(int64)*int64(time.Millisecond)), nil
-		default:
-			return data, nil
-		}
-		// Convert it by parsing
-	}
-}
+var config = InitConfig()
 
-func Decode(input map[string]interface{}, result interface{}) error {
-	decoder, err := mapstructure.NewDecoder(&mapstructure.DecoderConfig{
-		Metadata: nil,
-		DecodeHook: mapstructure.ComposeDecodeHookFunc(
-			ToTimeHookFunc()),
-		Result: result,
-	})
-	if err != nil {
-		return err
-	}
-
-	if err := decoder.Decode(input); err != nil {
-		return err
-	}
-	return err
-}
 func InitConfig() *configuration {
 	viper.SetConfigName(".really")
 	viper.SetConfigType("yaml")
@@ -92,17 +49,6 @@ func InitConfig() *configuration {
 	return &c
 }
 
-func (c *configuration) SetCookies(cookies []*http.Cookie) {
-	jsonCookies, err := json.Marshal(cookies)
-	if err != nil {
-		log.Fatalf("序列化 JSON 错误: %+v", err)
-	}
-	c.DotaMax.Cookies = string(jsonCookies)
-	viper.Set("dotamax", c.DotaMax)
-
-	c.SaveConfig()
-}
-
 func (c *configuration) SaveConfig() {
 	err := viper.WriteConfig()
 	if err != nil {
@@ -111,7 +57,7 @@ func (c *configuration) SaveConfig() {
 }
 
 func createDefaultConfigFile() {
-	viper.Set("dotamax", dotaMaxConfig{})
+	viper.Set("botqq", miraiConfig{})
 
 	err := viper.SafeWriteConfig()
 	if err != nil {
