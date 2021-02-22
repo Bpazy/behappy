@@ -3,8 +3,6 @@ module github.com/Bpazy/really
 go 1.15
 
 require (
-	github.com/Bpazy/dotamax v1.0.0
-	github.com/PuerkitoBio/goquery v1.6.1
 	github.com/gin-gonic/gin v1.6.3
 	github.com/go-playground/validator/v10 v10.4.1 // indirect
 	github.com/go-resty/resty/v2 v2.4.0
@@ -12,7 +10,6 @@ require (
 	github.com/json-iterator/go v1.1.10 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/mattn/go-sqlite3 v1.14.6
-	github.com/mitchellh/mapstructure v1.1.2
 	github.com/robfig/cron/v3 v3.0.0
 	github.com/spf13/cobra v1.1.3
 	github.com/spf13/viper v1.7.0
