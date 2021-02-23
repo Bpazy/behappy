@@ -8,7 +8,7 @@ CMDPATH=./cmd/really
 all: linux-amd64 darwin-amd64 windows-amd64 # Most used
 
 init:
-	export GOPROXY=https://goproxy.cn
+	export GOPROXY=https://mirrors.aliyun.com/goproxy/
 
 darwin-amd64: init
 	GOARCH=amd64 GOOS=darwin $(GOBUILD) -o $(BINDIR)/$(NAME)-$@-$(VERSION) $(CMDPATH)
