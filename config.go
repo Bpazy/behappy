@@ -2,8 +2,8 @@ package really
 
 import (
 	"fmt"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
-	"log"
 	"os"
 	"path/filepath"
 )
@@ -38,14 +38,14 @@ func InitConfig() *configuration {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
 			createDefaultConfigFile()
 		} else {
-			log.Fatalf("保存配置文件失败: %+v", err)
+			logrus.Fatalf("保存配置文件失败: %+v", err)
 		}
 	}
 
 	var c configuration
 	err = viper.Unmarshal(&c)
 	if err != nil {
-		log.Fatalf("读取配置文件失败: %+v", err)
+		logrus.Fatalf("读取配置文件失败: %+v", err)
 	}
 
 	c.check()
@@ -56,7 +56,7 @@ func InitConfig() *configuration {
 func (c *configuration) SaveConfig() {
 	err := viper.WriteConfig()
 	if err != nil {
-		log.Fatalf("保存配置文件失败: %+v", err)
+		logrus.Fatalf("保存配置文件失败: %+v", err)
 	}
 }
 
@@ -66,7 +66,7 @@ func createDefaultConfigFile() {
 
 	err := viper.SafeWriteConfig()
 	if err != nil {
-		log.Fatalf("初始化配置文件失败: %+v", err)
+		logrus.Fatalf("初始化配置文件失败: %+v", err)
 	}
 	userHomeDir, _ := os.UserHomeDir()
 	fmt.Println("请填写配置文件: " + filepath.Join(userHomeDir, ".really.yaml"))

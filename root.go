@@ -4,9 +4,9 @@ import (
 	"github.com/go-resty/resty/v2"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/robfig/cron/v3"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"gorm.io/gorm"
-	"log"
 )
 
 var (
@@ -29,7 +29,7 @@ var (
 		Short: "版本号",
 		Long:  `查看 really 的版本号`,
 		Run: func(cmd *cobra.Command, args []string) {
-			log.Println(buildVer)
+			logrus.Info(buildVer)
 		},
 	}
 )
@@ -51,10 +51,10 @@ func Run() {
 	db = initDB()
 	client = initRestyClient()
 
-	log.Println("启动定时任务")
+	logrus.Info("启动定时任务")
 	startOpenDota()
 
-	log.Println("启动 Mirai HTTP 监听器")
+	logrus.Info("启动 Mirai HTTP 监听器")
 	serveMirai()
 }
 

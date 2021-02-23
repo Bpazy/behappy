@@ -1,13 +1,13 @@
 package really
 
 import (
-	"log"
+	"github.com/sirupsen/logrus"
 )
 
 func Get(url string) []byte {
 	r, err := client.R().Get(url)
 	if err != nil {
-		log.Printf("发送请求失败: %+v\n", err)
+		logrus.Printf("发送请求失败: %+v", err)
 		return []byte{}
 	}
 
@@ -32,7 +32,7 @@ func PostJsonString(url string, v string) []byte {
 		SetBody(v).
 		Post(url)
 	if err != nil {
-		log.Printf("发送请求失败: %+v\n", err)
+		logrus.Printf("发送请求失败: %+v", err)
 		return []byte{}
 	}
 

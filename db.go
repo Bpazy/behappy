@@ -1,9 +1,9 @@
 package really
 
 import (
+	"github.com/sirupsen/logrus"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
-	"log"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -15,7 +15,7 @@ func initDB() *gorm.DB {
 
 	db, err := gorm.Open(sqlite.Open(dbPath), &gorm.Config{})
 	if err != nil {
-		log.Fatal(err)
+		logrus.Fatal(err)
 	}
 
 	err = db.AutoMigrate(&MatchPlayer{})

@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 	"gopkg.in/errgo.v2/fmt/errors"
 	"io/ioutil"
-	"log"
 	"regexp"
 	"strconv"
 	"strings"
@@ -24,10 +24,10 @@ func serveMirai() {
 		if err != nil {
 			panic(err)
 		}
-		log.Printf("接受到来自 Mirai 的上报: %s\n", string(all))
+		logrus.Debugf("接受到来自 Mirai 的上报: %s", string(all))
 
 		e := NewEvent(all)
-		log.Printf("接受到来自 Mirai 的事件：%s\n", e)
+		logrus.Printf("接受到来自 Mirai 的事件：%s", e)
 
 		if e.IsGroupMessage() {
 			submatch := subscribeR.FindStringSubmatch(e.MessageChain.PlainText())
@@ -60,7 +60,7 @@ func serveMirai() {
 		c.JSON(200, nil)
 	})
 
-	log.Fatal(r.Run("0.0.0.0:10000"))
+	logrus.Fatal(r.Run("0.0.0.0:10000"))
 }
 
 func (cs MessageChains) PlainText() string {
@@ -185,19 +185,19 @@ type SendMessageResponse struct {
 func SendGroupMessage(target int, text string) {
 	session, err := Auth()
 	if err != nil {
-		log.Printf("发送群消息获取 session 失败: %+v\n", err)
+		logrus.Printf("发送群消息获取 session 失败: %+v", err)
 	}
 	defer Release(session)
 
 	response := SendMessageResponse{}
 	b, err := PostJson("http://localhost:8080/sendGroupMessage", NewSendMessage(session, target, text))
 	if err != nil {
-		log.Printf("发送群消息失败: %+v\n", err)
+		logrus.Printf("发送群消息失败: %+v", err)
 		return
 	}
 	MustJsonUnmarshal(b, &response)
 	if response.Code != 0 {
-		log.Printf("发送消息失败: %+v", response)
+		logrus.Printf("发送消息失败: %+v", response)
 	}
 }
 
@@ -207,7 +207,7 @@ func Auth() (string, error) {
 		"authKey": authKey,
 	})
 	if err != nil {
-		log.Fatalf("Mirai Auth 失败: %+v\n", err)
+		logrus.Fatalf("Mirai Auth 失败: %+v", err)
 	}
 	type AuthResult struct {
 		Code    int    `json:"code"`
@@ -218,7 +218,7 @@ func Auth() (string, error) {
 	if authResult.Code != 0 {
 		return "", errors.Newf("auth 失败，请检查 authKey: %s\n", authKey)
 	}
-	log.Println("Mirai auth 成功")
+	logrus.Info("Mirai auth 成功")
 
 	type VerifyResult struct {
 		Code int    `json:"code"`
@@ -237,7 +237,7 @@ func Auth() (string, error) {
 		return "", errors.Newf("verify session 失败，请检查配置文件中的 BotQQ: %+v\n", response)
 	}
 
-	log.Println("Mirai session verify 成功")
+	logrus.Info("Mirai session verify 成功")
 	return authResult.Session, nil
 }
 
@@ -247,8 +247,8 @@ func Release(session string) {
 		"qq":         config.Mirai.BotQQ,
 	})
 	if err != nil {
-		log.Printf("释放 session 失败: %+v\n", err)
+		logrus.Printf("释放 session 失败: %+v", err)
 		return
 	}
-	log.Printf("释放 session 成功: %s\n", string(rb))
+	logrus.Printf("释放 session 成功: %s", string(rb))
 }

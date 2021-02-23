@@ -3,14 +3,14 @@ package really
 import (
 	"errors"
 	"fmt"
+	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
-	"log"
 )
 
 func SubscribeFunc() {
 	var sps []*SubscribePlayer
 	if err := db.Distinct("player_id").Find(&sps).Error; err != nil {
-		log.Println("没有订阅的玩家")
+		logrus.Infof("没有订阅的玩家")
 		return
 	}
 
@@ -19,7 +19,7 @@ func SubscribeFunc() {
 	for _, sp := range sps {
 		playerDetailRes, err := client.R().Get(fmt.Sprintf("https://api.opendota.com/api/players/%s/matches?limit=1", sp.PlayerId))
 		if err != nil {
-			log.Printf("从 opendota 获取玩家比赛列表失败: %+v\n", err)
+			logrus.Printf("从 opendota 获取玩家比赛列表失败: %+v", err)
 			continue
 		}
 
@@ -34,7 +34,7 @@ func SubscribeFunc() {
 			}
 			if err := db.Where(s).First(&MatchPlayer{}).Error; errors.Is(err, gorm.ErrRecordNotFound) {
 				newMatchPlayers = append(newMatchPlayers, mp)
-				log.Printf("探测到新的比赛：%d\n", mp.MatchID)
+				logrus.Printf("探测到新的比赛：%d", mp.MatchID)
 				db.Create(mp)
 			}
 		}
@@ -45,7 +45,7 @@ func SubscribeFunc() {
 		// 待通知的订阅群组
 		var allSub []*SubscribePlayer
 		if err := db.Where("player_id = ?", mp.PlayerID).Find(&allSub).Error; err != nil {
-			log.Println("没有订阅的玩家")
+			logrus.Info("没有订阅的玩家")
 			return
 		}
 		for _, sp := range allSub {
