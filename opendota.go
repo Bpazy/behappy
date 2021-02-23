@@ -11,6 +11,7 @@ func SubscribeFunc() {
 	var sps []*SubscribePlayer
 	if err := db.Distinct("player_id").Find(&sps).Error; err != nil {
 		log.Println("没有订阅的玩家")
+		return
 	}
 
 	// 新比赛
@@ -19,6 +20,7 @@ func SubscribeFunc() {
 		playerDetailRes, err := client.R().Get(fmt.Sprintf("https://api.opendota.com/api/players/%s/matches?limit=1", sp.PlayerId))
 		if err != nil {
 			log.Printf("从 opendota 获取玩家比赛列表失败: %+v\n", err)
+			continue
 		}
 
 		var matchPlayers []*MatchPlayer
@@ -40,6 +42,7 @@ func SubscribeFunc() {
 
 	if err := db.Find(&sps).Error; err != nil {
 		log.Println("没有订阅的玩家")
+		return
 	}
 	// 逐个群通知
 	for _, mp := range newMatchPlayers {
