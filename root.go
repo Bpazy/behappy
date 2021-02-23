@@ -51,7 +51,10 @@ func Run() {
 	db = initDB()
 	client = initRestyClient()
 
+	log.Println("启动定时任务")
 	startOpenDota()
+
+	log.Println("启动 Mirai HTTP 监听器")
 	serveMirai()
 }
 

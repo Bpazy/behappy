@@ -17,7 +17,7 @@ func Get(url string) []byte {
 func PostJson(url string, v interface{}) ([]byte, error) {
 	r, err := client.R().
 		SetHeader("Accept", "application/json").
-		SetBody(JsonMarshal(v)).
+		SetBody(MustJsonMarshal(v)).
 		Post(url)
 	if err != nil {
 		return []byte{}, err

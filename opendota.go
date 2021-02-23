@@ -24,7 +24,7 @@ func SubscribeFunc() {
 		}
 
 		var matchPlayers []*MatchPlayer
-		JsonUnmarshal(playerDetailRes.Body(), &matchPlayers)
+		MustJsonUnmarshal(playerDetailRes.Body(), &matchPlayers)
 
 		for _, mp := range matchPlayers {
 			mp.PlayerID = sp.PlayerId
@@ -40,13 +40,15 @@ func SubscribeFunc() {
 		}
 	}
 
-	if err := db.Find(&sps).Error; err != nil {
-		log.Println("没有订阅的玩家")
-		return
-	}
 	// 逐个群通知
 	for _, mp := range newMatchPlayers {
-		for _, sp := range sps {
+		// 待通知的订阅群组
+		var allSub []*SubscribePlayer
+		if err := db.Where("player_id = ?", mp.PlayerID).Find(&allSub).Error; err != nil {
+			log.Println("没有订阅的玩家")
+			return
+		}
+		for _, sp := range allSub {
 			pretty := fmt.Sprintf("英雄: %s\n等级: %s\n\n击杀: %d, 死亡: %d, 助攻: %d", mp.HeroName(), mp.SkillString(), mp.Kills, mp.Deaths, mp.Assists)
 			SendGroupMessage(sp.GroupId, fmt.Sprintf("「%s」有新「%s」的比赛了: \n\n%s", sp.Name(), mp.MatchResultString(), pretty))
 		}
@@ -57,7 +59,7 @@ func InitHeros() {
 	b := Get(fmt.Sprintf("http://api.steampowered.com/IEconDOTA2_570/GetHeroes/v0001?key=%s&language=zh", config.SteamAPI.Key))
 
 	var steamApiResult SteamApiResult
-	JsonUnmarshal(b, &steamApiResult)
+	MustJsonUnmarshal(b, &steamApiResult)
 
 	heros := steamApiResult.Result.Heroes
 	for _, hero := range heros {

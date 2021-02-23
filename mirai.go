@@ -16,6 +16,7 @@ var subscribeR = regexp.MustCompile("订阅\\s+(\\d+)\\s+别名\\s+(.+)")
 
 // serveMirai 开启 Mirai事件上报监听器
 func serveMirai() {
+	gin.SetMode(gin.ReleaseMode)
 	r := gin.New()
 	r.Use(gin.Recovery())
 	r.POST("/post", func(c *gin.Context) {
@@ -194,7 +195,7 @@ func SendGroupMessage(target int, text string) {
 		log.Printf("发送群消息失败: %+v\n", err)
 		return
 	}
-	JsonUnmarshal(b, &response)
+	MustJsonUnmarshal(b, &response)
 	if response.Code != 0 {
 		log.Printf("发送消息失败: %+v", response)
 	}
@@ -213,7 +214,7 @@ func Auth() (string, error) {
 		Session string `json:"session"`
 	}
 	var authResult AuthResult
-	JsonUnmarshal(rb, &authResult)
+	MustJsonUnmarshal(rb, &authResult)
 	if authResult.Code != 0 {
 		return "", errors.Newf("auth 失败，请检查 authKey: %s\n", authKey)
 	}
@@ -231,7 +232,7 @@ func Auth() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	JsonUnmarshal(b, &response)
+	MustJsonUnmarshal(b, &response)
 	if response.Code != 0 {
 		return "", errors.Newf("verify session 失败，请检查配置文件中的 BotQQ: %+v\n", response)
 	}
