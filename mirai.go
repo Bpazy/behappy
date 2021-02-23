@@ -59,8 +59,6 @@ func serveMirai() {
 		c.JSON(200, nil)
 	})
 
-	Auth()
-
 	log.Fatal(r.Run("0.0.0.0:10000"))
 }
 
@@ -169,7 +167,7 @@ type SendMessage struct {
 	MessageChain MessageChains `json:"messageChain"`
 }
 
-func NewSendMessage(target int, text string) *SendMessage {
+func NewSendMessage(session string, target int, text string) *SendMessage {
 	return &SendMessage{
 		SessionKey:   session,
 		Target:       target,
@@ -184,8 +182,14 @@ type SendMessageResponse struct {
 }
 
 func SendGroupMessage(target int, text string) {
+	session, err := Auth()
+	if err != nil {
+		log.Printf("发送群消息获取 session 失败: %+v\n", err)
+	}
+	defer Release(session)
+
 	response := SendMessageResponse{}
-	b, err := PostJson("http://localhost:8080/sendGroupMessage", NewSendMessage(target, text))
+	b, err := PostJson("http://localhost:8080/sendGroupMessage", NewSendMessage(session, target, text))
 	if err != nil {
 		log.Printf("发送群消息失败: %+v\n", err)
 		return
@@ -196,11 +200,10 @@ func SendGroupMessage(target int, text string) {
 	}
 }
 
-var session string
-
-func Auth() {
+func Auth() (string, error) {
+	authKey := "1234567890"
 	rb, err := PostJson("http://localhost:8080/auth", map[string]string{
-		"authKey": "1234567890",
+		"authKey": authKey,
 	})
 	if err != nil {
 		log.Fatalf("Mirai Auth 失败: %+v\n", err)
@@ -212,8 +215,7 @@ func Auth() {
 	var authResult AuthResult
 	JsonUnmarshal(rb, &authResult)
 	if authResult.Code != 0 {
-		log.Fatalf("auth 失败，请检查 authKey\n")
-		return
+		return "", errors.Newf("auth 失败，请检查 authKey: %s\n", authKey)
 	}
 	log.Println("Mirai auth 成功")
 
@@ -227,13 +229,25 @@ func Auth() {
 		"qq":         config.Mirai.BotQQ,
 	})
 	if err != nil {
-		log.Fatalf("verify session 失败，请检查配置文件中的 BotQQ: %+v\n", err)
+		return "", err
 	}
 	JsonUnmarshal(b, &response)
 	if response.Code != 0 {
-		log.Fatalf("verify session 失败，请检查配置文件中的 BotQQ: %+v\n", response)
+		return "", errors.Newf("verify session 失败，请检查配置文件中的 BotQQ: %+v\n", response)
 	}
 
 	log.Println("Mirai session verify 成功")
-	session = authResult.Session
+	return authResult.Session, nil
+}
+
+func Release(session string) {
+	rb, err := PostJson("http://localhost:8080/release", map[string]string{
+		"sessionKey": session,
+		"qq":         config.Mirai.BotQQ,
+	})
+	if err != nil {
+		log.Printf("释放 session 失败: %+v\n", err)
+		return
+	}
+	log.Printf("释放 session 成功: %s\n", string(rb))
 }

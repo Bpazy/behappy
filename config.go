@@ -10,12 +10,16 @@ import (
 
 // configuration 总配置
 type configuration struct {
-	Mirai *miraiConfig `mapstructure:"mirai"`
+	Mirai    *MiraiConfig    `mapstructure:"mirai"`
+	SteamAPI *SteamAPIConfig `mapstructure:"steamapi"`
 }
 
-// miraiConfig Dota Max 相关配置
-type miraiConfig struct {
+type MiraiConfig struct {
 	BotQQ string `mapstructure:"botqq"`
+}
+
+type SteamAPIConfig struct {
+	Key string `mapstructure:"key"`
 }
 
 // check 校验配置文件必填项
@@ -57,7 +61,8 @@ func (c *configuration) SaveConfig() {
 }
 
 func createDefaultConfigFile() {
-	viper.Set("botqq", miraiConfig{})
+	viper.Set("mirai", MiraiConfig{})
+	viper.Set("steamapi", SteamAPIConfig{})
 
 	err := viper.SafeWriteConfig()
 	if err != nil {

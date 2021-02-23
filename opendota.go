@@ -54,11 +54,12 @@ func SubscribeFunc() {
 }
 
 func InitHeros() {
-	b := Get("https://api.opendota.com/api/heroes")
+	b := Get(fmt.Sprintf("http://api.steampowered.com/IEconDOTA2_570/GetHeroes/v0001?key=%s&language=zh", config.SteamAPI.Key))
 
-	var heros []*Hero
-	JsonUnmarshal(b, &heros)
+	var steamApiResult SteamApiResult
+	JsonUnmarshal(b, &steamApiResult)
 
+	heros := steamApiResult.Result.Heroes
 	for _, hero := range heros {
 		db.Create(&hero)
 	}

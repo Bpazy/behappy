@@ -103,11 +103,16 @@ func (sp SubscribePlayer) Name() string {
 }
 
 type Hero struct {
-	ID            int    `json:"id"`
 	Name          string `json:"name"`
+	ID            int    `json:"id"`
 	LocalizedName string `json:"localized_name"`
-	PrimaryAttr   string `json:"primary_attr"`
-	AttackType    string `json:"attack_type"`
-	Legs          int    `json:"legs"`
 	gorm.Model
+}
+
+type SteamApiResult struct {
+	Result struct {
+		Heroes []Hero `json:"heroes"`
+		Status int    `json:"status"`
+		Count  int    `json:"count"`
+	} `json:"result"`
 }
