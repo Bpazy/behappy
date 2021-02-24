@@ -56,6 +56,7 @@ func SubscribeFunc() {
 }
 
 func InitHeros() {
+	logrus.Info("初始化英雄数据")
 	b := Get(fmt.Sprintf("http://api.steampowered.com/IEconDOTA2_570/GetHeroes/v0001?key=%s&language=zh", config.SteamAPI.Key))
 
 	var steamApiResult SteamApiResult

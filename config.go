@@ -10,8 +10,9 @@ import (
 
 // configuration 总配置
 type configuration struct {
-	Mirai    *MiraiConfig    `mapstructure:"mirai"`
-	SteamAPI *SteamAPIConfig `mapstructure:"steamapi"`
+	Mirai      *MiraiConfig      `mapstructure:"mirai"`
+	SteamAPI   *SteamAPIConfig   `mapstructure:"steamapi"`
+	DataSource *DataSourceConfig `mapstructure:"datasource"`
 }
 
 type MiraiConfig struct {
@@ -20,6 +21,10 @@ type MiraiConfig struct {
 
 type SteamAPIConfig struct {
 	Key string `mapstructure:"key"`
+}
+
+type DataSourceConfig struct {
+	Url string `mapstructure:"url"`
 }
 
 // check 校验配置文件必填项
@@ -63,6 +68,7 @@ func (c *configuration) SaveConfig() {
 func createDefaultConfigFile() {
 	viper.Set("mirai", MiraiConfig{})
 	viper.Set("steamapi", SteamAPIConfig{})
+	viper.Set("datasource", DataSourceConfig{})
 
 	err := viper.SafeWriteConfig()
 	if err != nil {
