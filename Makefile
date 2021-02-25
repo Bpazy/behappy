@@ -4,22 +4,20 @@ VERSION=$(shell git describe --tags || echo "unknownversion")
 LDFLAGS="-s -w -X github.com/Bpazy/really.buildVer=${VERSION}"
 GOBUILD=go build -ldflags=${LDFLAGS}
 CMDPATH=./cmd/really
+export GOPROXY=https://mirrors.aliyun.com/goproxy/
 
 all: linux-amd64 darwin-amd64 windows-amd64 # Most used
 
-init:
-	export GOPROXY=https://mirrors.aliyun.com/goproxy/
-
-darwin-amd64: init
+darwin-amd64:
 	GOARCH=amd64 GOOS=darwin $(GOBUILD) -o $(BINDIR)/$(NAME)-$@-$(VERSION) $(CMDPATH)
 
-linux-amd64: init
+linux-amd64:
 	GOARCH=amd64 GOOS=linux $(GOBUILD) -o $(BINDIR)/$(NAME)-$@-$(VERSION) $(CMDPATH)
 
-windows-amd64: init
+windows-amd64:
 	GOARCH=amd64 GOOS=windows $(GOBUILD) -o $(BINDIR)/$(NAME)-$@-$(VERSION).exe $(CMDPATH)
 
-install: init
+install:
 	go install -ldflags=${LDFLAGS} $(CMDPATH)
 
 clean:
