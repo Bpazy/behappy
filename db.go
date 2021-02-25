@@ -66,7 +66,7 @@ type MatchPlayer struct {
 	Kills        int    `json:"kills"`
 	Deaths       int    `json:"deaths"`
 	Assists      int    `json:"assists"`
-	Skill        int    `json:"skill"`
+	Skill        *int   `json:"skill"`
 	LeaverStatus int    `json:"leaver_status"`
 	PartySize    int    `json:"party_size"`
 	gorm.Model
@@ -99,7 +99,10 @@ func (m MatchPlayer) MatchResultString() string {
 }
 
 func (m MatchPlayer) SkillString() string {
-	switch m.Skill {
+	if m.Skill == nil {
+		return "Unknown"
+	}
+	switch *m.Skill {
 	case 3:
 		return "Very High"
 	case 2:
