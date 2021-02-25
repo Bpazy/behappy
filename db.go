@@ -111,7 +111,7 @@ func (m MatchPlayer) SkillString() string {
 	return "Normal"
 }
 
-//  CREATE TABLE `subscribe_players` (
+// CREATE TABLE `subscribe_players` (
 //   `group_id` bigint(20) DEFAULT NULL,
 //   `player_id` varchar(100) DEFAULT NULL,
 //   `alias` varchar(100) DEFAULT NULL,
