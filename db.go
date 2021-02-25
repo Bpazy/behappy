@@ -85,7 +85,10 @@ func (m MatchPlayer) HeroName() string {
 }
 
 func (m MatchPlayer) IsWin() bool {
-	return m.PlayerSlot < 127 && m.RadiantWin
+	if m.PlayerSlot < 127 {
+		return m.RadiantWin
+	}
+	return !m.RadiantWin
 }
 
 func (m MatchPlayer) MatchResultString() string {
@@ -157,7 +160,7 @@ type SteamApiResult struct {
 }
 
 // CREATE TABLE `jokes` (
-//   `content` longtext,
+//   `content` longtext NOT NULL,
 //   `limited_hero_id` bigint(20) unsigned DEFAULT NULL,
 //   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
 //   `created_at` datetime(3) DEFAULT NULL,
