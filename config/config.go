@@ -32,13 +32,13 @@ func (c *configuration) check() {
 
 }
 
-var config = InitConfig()
+var config *configuration
 
 func GetConfig() *configuration {
 	return config
 }
 
-func InitConfig() *configuration {
+func InitConfig() {
 	viper.SetConfigName(".really")
 	viper.SetConfigType("yaml")
 	viper.AddConfigPath("$HOME")
@@ -59,7 +59,7 @@ func InitConfig() *configuration {
 
 	c.check()
 
-	return &c
+	config = &c
 }
 
 func (c *configuration) SaveConfig() {

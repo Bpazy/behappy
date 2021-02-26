@@ -1,6 +1,7 @@
 package really
 
 import (
+	"github.com/Bpazy/really/config"
 	"github.com/Bpazy/really/dao"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/robfig/cron/v3"
@@ -44,6 +45,7 @@ func Execute() error {
 }
 
 func Run() {
+	config.InitConfig()
 	dao.InitDB()
 
 	logrus.Info("启动定时任务")
