@@ -91,13 +91,6 @@ func (m MatchPlayer) IsWin() bool {
 	return !m.RadiantWin
 }
 
-func (m MatchPlayer) MatchResultString() string {
-	if m.IsWin() {
-		return "胜利"
-	}
-	return "失败"
-}
-
 func (m MatchPlayer) SkillString() string {
 	if m.Skill == nil {
 		return "Unknown"

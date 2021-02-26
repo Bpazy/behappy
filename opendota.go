@@ -50,7 +50,13 @@ func SubscribeFunc() {
 		}
 		for _, sp := range allSub {
 			pretty := fmt.Sprintf("英雄: %s\n等级: %s\n\n击杀: %d, 死亡: %d, 助攻: %d", mp.HeroName(), mp.SkillString(), mp.Kills, mp.Deaths, mp.Assists)
-			SendGroupMessage(sp.GroupId, fmt.Sprintf("「%s」有新「%s」的比赛了: \n\n%s", sp.Name(), mp.MatchResultString(), pretty))
+			message := ""
+			if mp.IsWin() {
+				message = fmt.Sprintf("「%s」竟然「赢」了 \n\n%s", sp.Name(), pretty)
+			} else {
+				message = fmt.Sprintf("「%s」又「输」了 \n\n%s", sp.Name(), pretty)
+			}
+			SendGroupMessage(sp.GroupId, message)
 		}
 	}
 }
