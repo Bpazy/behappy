@@ -9,10 +9,10 @@ import (
 	"time"
 )
 
-var DB *gorm.DB
+var db *gorm.DB
 
-func InitDB() *gorm.DB {
-	db, err := gorm.Open(mysql.Open(config.GetConfig().DataSource.Url), &gorm.Config{
+func InitDB() {
+	_db, err := gorm.Open(mysql.Open(config.GetConfig().DataSource.Url), &gorm.Config{
 		Logger: logger.New(
 			logrus.StandardLogger(), // io writer
 			logger.Config{
@@ -26,5 +26,5 @@ func InitDB() *gorm.DB {
 		logrus.Fatal(err)
 	}
 
-	return db
+	db = _db
 }

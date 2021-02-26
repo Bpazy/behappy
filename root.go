@@ -2,12 +2,12 @@ package really
 
 import (
 	"github.com/Bpazy/really/dao"
-	"github.com/Bpazy/really/models"
-	"github.com/go-resty/resty/v2"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/robfig/cron/v3"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"log"
+	"runtime/debug"
 )
 
 var (
@@ -43,13 +43,8 @@ func Execute() error {
 	return rootCmd.Execute()
 }
 
-var (
-	client *resty.Client
-)
-
 func Run() {
-	dao.DB = dao.InitDB()
-	client = initRestyClient()
+	dao.InitDB()
 
 	logrus.Info("启动定时任务")
 	startOpenDota()
@@ -58,14 +53,9 @@ func Run() {
 	serveMirai()
 }
 
-// initRestyClient 初始化 http client
-func initRestyClient() *resty.Client {
-	return resty.New()
-}
-
 // startOpenDota 定时任务相关逻辑
 func startOpenDota() {
-	if err := dao.DB.First(&models.Hero{}).Error; err != nil {
+	if !dao.HasHeroData() {
 		InitHeros()
 	}
 
@@ -73,7 +63,7 @@ func startOpenDota() {
 	c.AddFunc("@every 5m", func() {
 		defer func() {
 			if err := recover(); err != nil {
-				logrus.Printf("run time panic: %v", err)
+				log.Printf("run time panic: %s", string(debug.Stack()))
 			}
 		}()
 

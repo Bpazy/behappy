@@ -3,8 +3,10 @@ package really
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/Bpazy/really/bjson"
 	"github.com/Bpazy/really/config"
 	"github.com/Bpazy/really/dao"
+	"github.com/Bpazy/really/http"
 	"github.com/Bpazy/really/models"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
@@ -38,23 +40,19 @@ func serveMirai() {
 				return
 			}
 
-			query := &models.SubscribePlayer{
-				GroupId:  e.Sender.Group.ID,
-				PlayerId: submatch[1],
-			}
-			savedSP := models.SubscribePlayer{}
-			if err := dao.DB.Where(query).First(&savedSP).Error; err != nil {
+			savedSP := dao.GetSubPlayer(e.Sender.Group.ID, submatch[1])
+			if savedSP == nil {
 				// 不存在
-				dao.DB.Create(&models.SubscribePlayer{
-					GroupId:  e.Sender.Group.ID,
-					PlayerId: submatch[1],
+				dao.SaveSubPlayer(&models.SubscribePlayer{
+					GroupID:  e.Sender.Group.ID,
+					PlayerID: submatch[1],
 					Alias:    submatch[2],
 				})
 				SendGroupMessage(e.Sender.Group.ID, "订阅成功")
 			} else {
 				// 存在则更新
 				savedSP.Alias = submatch[2]
-				dao.DB.Save(&savedSP)
+				dao.UpdateSubPlayer(savedSP)
 				SendGroupMessage(e.Sender.Group.ID, "更新订阅成功")
 			}
 
@@ -193,12 +191,12 @@ func SendGroupMessage(target int, text string) {
 	defer Release(session)
 
 	response := SendMessageResponse{}
-	b, err := PostJson("http://localhost:8080/sendGroupMessage", NewSendMessage(session, target, text))
+	b, err := http.PostJson("http://localhost:8080/sendGroupMessage", NewSendMessage(session, target, text))
 	if err != nil {
 		logrus.Printf("发送群消息失败: %+v", err)
 		return
 	}
-	MustJsonUnmarshal(b, &response)
+	bjson.MustJsonUnmarshal(b, &response)
 	if response.Code != 0 {
 		logrus.Printf("发送消息失败: %+v", response)
 	}
@@ -206,7 +204,7 @@ func SendGroupMessage(target int, text string) {
 
 func Auth() (string, error) {
 	authKey := "1234567890"
-	rb, err := PostJson("http://localhost:8080/auth", map[string]string{
+	rb, err := http.PostJson("http://localhost:8080/auth", map[string]string{
 		"authKey": authKey,
 	})
 	if err != nil {
@@ -217,7 +215,7 @@ func Auth() (string, error) {
 		Session string `json:"session"`
 	}
 	var authResult AuthResult
-	MustJsonUnmarshal(rb, &authResult)
+	bjson.MustJsonUnmarshal(rb, &authResult)
 	if authResult.Code != 0 {
 		return "", errors.Newf("auth 失败，请检查 authKey: %s\n", authKey)
 	}
@@ -228,14 +226,14 @@ func Auth() (string, error) {
 		Msg  string `json:"msg"`
 	}
 	response := VerifyResult{}
-	b, err := PostJson("http://localhost:8080/verify", map[string]interface{}{
+	b, err := http.PostJson("http://localhost:8080/verify", map[string]interface{}{
 		"sessionKey": authResult.Session,
 		"qq":         config.GetConfig().Mirai.BotQQ,
 	})
 	if err != nil {
 		return "", err
 	}
-	MustJsonUnmarshal(b, &response)
+	bjson.MustJsonUnmarshal(b, &response)
 	if response.Code != 0 {
 		return "", errors.Newf("verify session 失败，请检查配置文件中的 BotQQ: %+v\n", response)
 	}
@@ -245,7 +243,7 @@ func Auth() (string, error) {
 }
 
 func Release(session string) {
-	rb, err := PostJson("http://localhost:8080/release", map[string]string{
+	rb, err := http.PostJson("http://localhost:8080/release", map[string]string{
 		"sessionKey": session,
 		"qq":         config.GetConfig().Mirai.BotQQ,
 	})

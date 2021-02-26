@@ -1,9 +1,7 @@
 package models
 
 import (
-	"github.com/Bpazy/really/dao"
 	"gorm.io/gorm"
-	"strconv"
 )
 
 // CREATE TABLE `match_players` (
@@ -51,18 +49,6 @@ type MatchPlayer struct {
 	gorm.Model
 }
 
-func (m MatchPlayer) HeroName() string {
-	var hero Hero
-	dao.DB.Where(&Hero{
-		ID: m.HeroID,
-	}).Find(&hero)
-
-	if hero.ID != 0 {
-		return hero.LocalizedName
-	}
-	return strconv.Itoa(m.HeroID)
-}
-
 func (m MatchPlayer) IsWin() bool {
 	if m.PlayerSlot < 127 {
 		return m.RadiantWin
@@ -96,8 +82,8 @@ func (m MatchPlayer) SkillString() string {
 //   KEY `idx_player_id` (`player_id`)
 // ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 type SubscribePlayer struct {
-	GroupId  int    `gorm:"index"` // 群ID
-	PlayerId string `gorm:"index"` // 玩家ID
+	GroupID  int    `gorm:"index"` // 群ID
+	PlayerID string `gorm:"index"` // 玩家ID
 	Alias    string // 别名
 	gorm.Model
 }
@@ -106,7 +92,7 @@ func (sp SubscribePlayer) Name() string {
 	if sp.Alias != "" {
 		return sp.Alias
 	}
-	return sp.PlayerId
+	return sp.PlayerID
 }
 
 // CREATE TABLE `heros` (

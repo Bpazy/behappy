@@ -1,4 +1,4 @@
-package really
+package bjson
 
 import (
 	"encoding/json"
