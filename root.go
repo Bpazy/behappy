@@ -70,7 +70,7 @@ func startOpenDota() {
 	}
 
 	c := cron.New()
-	c.AddFunc("@every 1m", func() {
+	c.AddFunc("@every 5m", func() {
 		defer func() {
 			if err := recover(); err != nil {
 				logrus.Printf("run time panic: %v", err)
