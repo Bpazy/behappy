@@ -1,12 +1,13 @@
 package really
 
 import (
+	"github.com/Bpazy/really/dao"
+	"github.com/Bpazy/really/models"
 	"github.com/go-resty/resty/v2"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/robfig/cron/v3"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	"gorm.io/gorm"
 )
 
 var (
@@ -44,11 +45,10 @@ func Execute() error {
 
 var (
 	client *resty.Client
-	db     *gorm.DB
 )
 
 func Run() {
-	db = initDB()
+	dao.DB = dao.InitDB()
 	client = initRestyClient()
 
 	logrus.Info("启动定时任务")
@@ -65,7 +65,7 @@ func initRestyClient() *resty.Client {
 
 // startOpenDota 定时任务相关逻辑
 func startOpenDota() {
-	if err := db.First(&Hero{}).Error; err != nil {
+	if err := dao.DB.First(&models.Hero{}).Error; err != nil {
 		InitHeros()
 	}
 

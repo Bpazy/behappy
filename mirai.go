@@ -3,6 +3,9 @@ package really
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/Bpazy/really/config"
+	"github.com/Bpazy/really/dao"
+	"github.com/Bpazy/really/models"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/errgo.v2/fmt/errors"
@@ -35,14 +38,14 @@ func serveMirai() {
 				return
 			}
 
-			query := &SubscribePlayer{
+			query := &models.SubscribePlayer{
 				GroupId:  e.Sender.Group.ID,
 				PlayerId: submatch[1],
 			}
-			savedSP := SubscribePlayer{}
-			if err := db.Where(query).First(&savedSP).Error; err != nil {
+			savedSP := models.SubscribePlayer{}
+			if err := dao.DB.Where(query).First(&savedSP).Error; err != nil {
 				// 不存在
-				db.Create(&SubscribePlayer{
+				dao.DB.Create(&models.SubscribePlayer{
 					GroupId:  e.Sender.Group.ID,
 					PlayerId: submatch[1],
 					Alias:    submatch[2],
@@ -51,7 +54,7 @@ func serveMirai() {
 			} else {
 				// 存在则更新
 				savedSP.Alias = submatch[2]
-				db.Save(&savedSP)
+				dao.DB.Save(&savedSP)
 				SendGroupMessage(e.Sender.Group.ID, "更新订阅成功")
 			}
 
@@ -227,7 +230,7 @@ func Auth() (string, error) {
 	response := VerifyResult{}
 	b, err := PostJson("http://localhost:8080/verify", map[string]interface{}{
 		"sessionKey": authResult.Session,
-		"qq":         config.Mirai.BotQQ,
+		"qq":         config.GetConfig().Mirai.BotQQ,
 	})
 	if err != nil {
 		return "", err
@@ -244,7 +247,7 @@ func Auth() (string, error) {
 func Release(session string) {
 	rb, err := PostJson("http://localhost:8080/release", map[string]string{
 		"sessionKey": session,
-		"qq":         config.Mirai.BotQQ,
+		"qq":         config.GetConfig().Mirai.BotQQ,
 	})
 	if err != nil {
 		logrus.Printf("释放 session 失败: %+v", err)

@@ -1,4 +1,4 @@
-package really
+package config
 
 import (
 	"fmt"
@@ -33,6 +33,10 @@ func (c *configuration) check() {
 }
 
 var config = InitConfig()
+
+func GetConfig() *configuration {
+	return config
+}
 
 func InitConfig() *configuration {
 	viper.SetConfigName(".really")

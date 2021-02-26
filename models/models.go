@@ -1,31 +1,10 @@
-package really
+package models
 
 import (
-	"github.com/sirupsen/logrus"
-	"gorm.io/driver/mysql"
+	"github.com/Bpazy/really/dao"
 	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
 	"strconv"
-	"time"
 )
-
-func initDB() *gorm.DB {
-	db, err := gorm.Open(mysql.Open(config.DataSource.Url), &gorm.Config{
-		Logger: logger.New(
-			logrus.StandardLogger(), // io writer
-			logger.Config{
-				SlowThreshold: time.Second, // Slow SQL threshold
-				LogLevel:      logger.Warn, // Log level
-				Colorful:      false,       // Disable color
-			},
-		),
-	})
-	if err != nil {
-		logrus.Fatal(err)
-	}
-
-	return db
-}
 
 // CREATE TABLE `match_players` (
 //   `match_id` bigint(20) DEFAULT NULL,
@@ -74,7 +53,7 @@ type MatchPlayer struct {
 
 func (m MatchPlayer) HeroName() string {
 	var hero Hero
-	db.Where(&Hero{
+	dao.DB.Where(&Hero{
 		ID: m.HeroID,
 	}).Find(&hero)
 
