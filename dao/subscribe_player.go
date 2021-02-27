@@ -5,16 +5,20 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func GetAllSubPlayers() []models.SubscribePlayer {
+func ListAllPlayerIDs() (pids []string) {
 	var sps []models.SubscribePlayer
 	db.Distinct("player_id").Find(&sps)
 	if len(sps) == 0 {
 		logrus.Infof("没有订阅的玩家")
 	}
-	return sps
+
+	for _, sp := range sps {
+		pids = append(pids, sp.PlayerID)
+	}
+	return pids
 }
 
-func GetSubPlayers(playerID string) []models.SubscribePlayer {
+func ListSubPlayers(playerID string) []models.SubscribePlayer {
 	var allSub []models.SubscribePlayer
 	if err := db.Where("player_id = ?", playerID).Find(&allSub).Error; err != nil {
 		logrus.Info("没有订阅的玩家")
@@ -33,6 +37,19 @@ func GetSubPlayer(groupID int, playerID string) *models.SubscribePlayer {
 		return nil
 	}
 	return &savedSP
+}
+
+func GetSubPlayerMapByGroupId(groupID int) (m map[string]string) {
+	var sps []models.SubscribePlayer
+	if err := db.Where("group_id = ?", groupID).Find(&sps).Error; err != nil {
+		return
+	}
+
+	m = map[string]string{}
+	for _, sp := range sps {
+		m[sp.PlayerID] = sp.Name()
+	}
+	return
 }
 
 func SaveSubPlayer(sp *models.SubscribePlayer) {
