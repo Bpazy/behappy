@@ -7,8 +7,6 @@ import (
 	"github.com/robfig/cron/v3"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	"log"
-	"runtime/debug"
 )
 
 var (
@@ -61,14 +59,10 @@ func startOpenDota() {
 		InitHeros()
 	}
 
-	c := cron.New()
+	c := cron.New(cron.WithChain(
+		cron.Recover(cron.DefaultLogger), // or use cron.DefaultLogger
+	))
 	c.AddFunc("@every 5m", func() {
-		defer func() {
-			if err := recover(); err != nil {
-				log.Printf("run time panic: %s", string(debug.Stack()))
-			}
-		}()
-
 		SubscribeFunc()
 	})
 
