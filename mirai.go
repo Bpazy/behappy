@@ -208,7 +208,7 @@ func Auth() (string, error) {
 		"authKey": authKey,
 	})
 	if err != nil {
-		logrus.Fatalf("Mirai Auth 失败: %+v", err)
+		return "", err
 	}
 	type AuthResult struct {
 		Code    int    `json:"code"`

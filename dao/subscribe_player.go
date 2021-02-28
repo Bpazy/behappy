@@ -18,6 +18,12 @@ func ListAllPlayerIDs() (pids []string) {
 	return pids
 }
 
+func ListGroupIDs() []int {
+	var groupIDs []int
+	db.Model(&models.SubscribePlayer{}).Distinct("group_id").Find(&groupIDs)
+	return groupIDs
+}
+
 func ListSubPlayers(playerID string) []models.SubscribePlayer {
 	var allSub []models.SubscribePlayer
 	if err := db.Where("player_id = ?", playerID).Find(&allSub).Error; err != nil {
