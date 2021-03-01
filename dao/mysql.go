@@ -1,7 +1,7 @@
 package dao
 
 import (
-	"github.com/Bpazy/really/config"
+	"github.com/Bpazy/behappy/config"
 	"github.com/sirupsen/logrus"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"

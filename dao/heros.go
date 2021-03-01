@@ -1,7 +1,7 @@
 package dao
 
 import (
-	"github.com/Bpazy/really/models"
+	"github.com/Bpazy/behappy/models"
 	"strconv"
 )
 

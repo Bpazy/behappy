@@ -1,13 +1,13 @@
-package really
+package behappy
 
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/Bpazy/really/bjson"
-	"github.com/Bpazy/really/config"
-	"github.com/Bpazy/really/dao"
-	"github.com/Bpazy/really/http"
-	"github.com/Bpazy/really/models"
+	"github.com/Bpazy/behappy/bjson"
+	"github.com/Bpazy/behappy/config"
+	"github.com/Bpazy/behappy/dao"
+	"github.com/Bpazy/behappy/http"
+	"github.com/Bpazy/behappy/models"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/errgo.v2/fmt/errors"

@@ -1,4 +1,4 @@
-module github.com/Bpazy/really
+module github.com/Bpazy/behappy
 
 go 1.15
 

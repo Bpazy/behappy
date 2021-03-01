@@ -39,7 +39,7 @@ func GetConfig() *configuration {
 }
 
 func InitConfig() {
-	viper.SetConfigName(".really")
+	viper.SetConfigName(".behappy")
 	viper.SetConfigType("yaml")
 	viper.AddConfigPath("$HOME")
 	err := viper.ReadInConfig()
@@ -79,6 +79,6 @@ func createDefaultConfigFile() {
 		logrus.Fatalf("初始化配置文件失败: %+v", err)
 	}
 	userHomeDir, _ := os.UserHomeDir()
-	fmt.Println("请填写配置文件: " + filepath.Join(userHomeDir, ".really.yaml"))
+	fmt.Println("请填写配置文件: " + filepath.Join(userHomeDir, ".behappy.yaml"))
 	os.Exit(0)
 }

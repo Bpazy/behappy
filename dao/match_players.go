@@ -1,6 +1,6 @@
 package dao
 
-import "github.com/Bpazy/really/models"
+import "github.com/Bpazy/behappy/models"
 
 func GetMatchPlayer(matchID int64, playerID string) *models.MatchPlayer {
 	if matchID == 0 || playerID == "" {

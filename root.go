@@ -1,8 +1,8 @@
-package really
+package behappy
 
 import (
-	"github.com/Bpazy/really/config"
-	"github.com/Bpazy/really/dao"
+	"github.com/Bpazy/behappy/config"
+	"github.com/Bpazy/behappy/dao"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/robfig/cron/v3"
 	"github.com/sirupsen/logrus"
@@ -10,12 +10,12 @@ import (
 )
 
 var (
-	// buildVer represents 'really' build version
+	// buildVer represents 'behappy' build version
 	buildVer string
 
 	// rootCmd represents the base command when called without any subcommands
 	rootCmd = &cobra.Command{
-		Use:   "really",
+		Use:   "behappy",
 		Short: "TODO",
 		Long: `TODO
 `,
@@ -27,7 +27,7 @@ var (
 	versionCmd = &cobra.Command{
 		Use:   "version",
 		Short: "版本号",
-		Long:  `查看 really 的版本号`,
+		Long:  `查看 behappy 的版本号`,
 		Run: func(cmd *cobra.Command, args []string) {
 			logrus.Info(buildVer)
 		},
