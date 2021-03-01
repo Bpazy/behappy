@@ -66,7 +66,10 @@ func startOpenDota() {
 		SubscribeFunc()
 	})
 
-	c.AddFunc("0 0 14 * * ?", TellJoke)
+	_, err := c.AddFunc("30 14 * * *", TellJoke)
+	if err != nil {
+		panic(err)
+	}
 	//c.AddFunc("@every 3s", TellJoke)
 
 	c.Start()
