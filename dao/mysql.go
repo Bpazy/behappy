@@ -2,6 +2,7 @@ package dao
 
 import (
 	"github.com/Bpazy/behappy/config"
+	"github.com/Bpazy/behappy/models"
 	"github.com/sirupsen/logrus"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -27,4 +28,17 @@ func InitDB() {
 	}
 
 	db = _db
+
+	must(db.AutoMigrate(
+		&models.MatchPlayer{},
+		&models.Hero{},
+		&models.SubscribePlayer{},
+		&models.Joke{},
+	))
+}
+
+func must(err error) {
+	if err != nil {
+		panic(err)
+	}
 }
