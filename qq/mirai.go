@@ -1,4 +1,4 @@
-package behappy
+package qq
 
 import (
 	"encoding/json"
@@ -12,6 +12,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"gopkg.in/errgo.v2/fmt/errors"
 	"io/ioutil"
+	"os"
 	"regexp"
 	"strconv"
 	"strings"
@@ -200,6 +201,32 @@ func SendGroupMessage(target int, text string) {
 	if response.Code != 0 {
 		logrus.Printf("发送消息失败: %+v", response)
 	}
+}
+
+func UploadGroupImage() {
+	session, err := Auth()
+	if err != nil {
+		logrus.Printf("发送群消息获取 session 失败: %+v", err)
+	}
+	defer Release(session)
+
+	file, err := os.OpenFile("C:/Users/hanzi/Desktop/20210305234729.jpg", os.O_RDONLY, 0666)
+	if err != nil {
+		panic(err)
+	}
+	post, err := http.Client.R().
+		SetFileReader("img", "test", file).
+		SetFormData(map[string]string{
+			"sessionKey": session,
+			"type":       "group",
+		}).
+		Post("http://localhost:8080/uploadImage")
+	if err != nil {
+		panic(err)
+	}
+
+	body := post.String()
+	logrus.Printf(body)
 }
 
 func Auth() (string, error) {

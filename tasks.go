@@ -8,6 +8,7 @@ import (
 	"github.com/Bpazy/behappy/http"
 	"github.com/Bpazy/behappy/models"
 	"github.com/Bpazy/behappy/opendota"
+	"github.com/Bpazy/behappy/qq"
 	"github.com/sirupsen/logrus"
 	"strconv"
 	"strings"
@@ -114,7 +115,7 @@ func SubscribeFunc() {
 					message = fmt.Sprintf(multiFailMsgTemplate, hanziJoin(matchPlayers, playerID2Name), num2Hanzi(len(matchPlayers)), mp.MatchID, mp.SkillString(), pretty)
 				}
 			}
-			SendGroupMessage(groupID, message)
+			qq.SendGroupMessage(groupID, message)
 		}
 	}
 }
@@ -173,6 +174,13 @@ func TellJoke() {
 
 	GIDs := dao.ListGroupIDs()
 	for _, ID := range GIDs {
-		SendGroupMessage(ID, "每日刀梗：\n\n"+joke.Content)
+		switch joke.Type {
+		case models.JokeTypeText:
+			qq.SendGroupMessage(ID, "每日刀梗：\n\n"+joke.Content)
+		case models.JokeTypeImg:
+
+		default:
+			logrus.Errorf("Joke type %s 不存在", joke.Type)
+		}
 	}
 }

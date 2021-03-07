@@ -3,6 +3,7 @@ package behappy
 import (
 	"github.com/Bpazy/behappy/config"
 	"github.com/Bpazy/behappy/dao"
+	"github.com/Bpazy/behappy/qq"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/robfig/cron/v3"
 	"github.com/sirupsen/logrus"
@@ -49,8 +50,10 @@ func Run() {
 	logrus.Info("启动定时任务")
 	startOpenDota()
 
+	//qq.UploadGroupImage()
+
 	logrus.Info("启动 Mirai HTTP 监听器")
-	serveMirai()
+	qq.ServeMirai()
 }
 
 // startOpenDota 定时任务相关逻辑

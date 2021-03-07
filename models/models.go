@@ -80,9 +80,7 @@ type Joke struct {
 	gorm.Model
 }
 
-type JokeType string
-
 const (
-	TEXT JokeType = "text"
-	IMG  JokeType = "img"
+	JokeTypeText string = "text"
+	JokeTypeImg  string = "img"
 )
