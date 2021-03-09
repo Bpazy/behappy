@@ -33,7 +33,7 @@ func serveMirai() {
 		logrus.Debugf("接受到来自 Mirai 的上报: %s", string(all))
 
 		e := NewEvent(all)
-		logrus.Printf("接受到来自 Mirai 的事件：%s", e)
+		logrus.Debugf("接受到来自 Mirai 的事件：%s", e)
 
 		if e.IsGroupMessage() {
 			submatch := subscribeR.FindStringSubmatch(e.MessageChain.PlainText())
