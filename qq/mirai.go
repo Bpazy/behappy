@@ -20,8 +20,8 @@ import (
 
 var subscribeR = regexp.MustCompile("订阅\\s+(\\d+)\\s+别名\\s+(.+)")
 
-// serveMirai 开启 Mirai事件上报监听器
-func serveMirai() {
+// ServeMirai 开启 Mirai事件上报监听器
+func ServeMirai() {
 	gin.SetMode(gin.ReleaseMode)
 	r := gin.New()
 	r.Use(gin.Recovery())
