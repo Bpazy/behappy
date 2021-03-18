@@ -12,7 +12,7 @@ func RandJoke() *models.Joke {
 		return nil
 	}
 
-	i := rand.Intn(int(count)) + 1
+	i := rand.Intn(int(count))
 	var joke models.Joke
 	db.Model(&models.Joke{}).Offset(i).First(&joke)
 
