@@ -25,6 +25,7 @@ func ServeMirai() {
 	gin.SetMode(gin.ReleaseMode)
 	r := gin.New()
 	r.Use(gin.Recovery())
+	logrus.SetLevel(logrus.DebugLevel)
 	r.POST("/post", func(c *gin.Context) {
 		all, err := ioutil.ReadAll(c.Request.Body)
 		if err != nil {
