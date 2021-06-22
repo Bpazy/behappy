@@ -17,8 +17,8 @@ var (
 	// rootCmd represents the base command when called without any subcommands
 	rootCmd = &cobra.Command{
 		Use:   "behappy",
-		Short: "TODO",
-		Long: `TODO
+		Short: "Don't worry,be happy",
+		Long: `风力掀天浪打头，只须一笑不须愁
 `,
 		Run: func(cmd *cobra.Command, args []string) {
 			Run()
