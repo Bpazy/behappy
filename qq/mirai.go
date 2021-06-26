@@ -63,7 +63,8 @@ func ServeMirai() {
 		c.JSON(200, nil)
 	})
 
-	logrus.Fatal(r.Run("0.0.0.0:10000"))
+	logrus.Infof("开始监听 %s, 等待 Mirai 事件上报", config.Addr)
+	logrus.Fatal(r.Run(config.Addr))
 }
 
 func (cs MessageChains) PlainText() string {

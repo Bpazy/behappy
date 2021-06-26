@@ -20,26 +20,37 @@ var (
 		Short: "Don't worry,be happy",
 		Long: `风力掀天浪打头，只须一笑不须愁
 `,
+	}
+
+	runCmd = &cobra.Command{
+		Use:   "run",
+		Short: "运行 behappy 主程序",
+		Long:  `运行 behappy 主程序`,
 		Run: func(cmd *cobra.Command, args []string) {
+			if config.DebugMode {
+				logrus.SetLevel(logrus.DebugLevel)
+			}
 			Run()
 		},
 	}
 
 	versionCmd = &cobra.Command{
 		Use:   "version",
-		Short: "版本号",
-		Long:  `查看 behappy 的版本号`,
+		Short: "查看 behappy 版本号",
+		Long:  `查看 behappy 版本号`,
 		Run: func(cmd *cobra.Command, args []string) {
 			logrus.Info(buildVer)
 		},
 	}
 )
 
-func init() {
-	rootCmd.AddCommand(versionCmd)
-}
-
 func Execute() error {
+	rootCmd.PersistentFlags().BoolVar(&config.DebugMode, "debug", false, "Debug Mode")
+	runCmd.Flags().StringVar(&config.Addr, "addr", "0.0.0.0:10000", "监听 Mirai 事件上报的端口号")
+
+	rootCmd.AddCommand(runCmd)
+	rootCmd.AddCommand(versionCmd)
+
 	return rootCmd.Execute()
 }
 
@@ -47,17 +58,17 @@ func Run() {
 	config.InitConfig()
 	dao.InitDB()
 
-	logrus.Info("启动定时任务")
 	startOpenDota()
 
 	//qq.UploadGroupImage()
 
-	logrus.Info("启动 Mirai HTTP 监听器")
 	qq.ServeMirai()
 }
 
 // startOpenDota 定时任务相关逻辑
 func startOpenDota() {
+	logrus.Info("启动定时任务")
+
 	if !dao.HasHeroData() {
 		InitHeros()
 	}
