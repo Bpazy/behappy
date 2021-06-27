@@ -27,11 +27,6 @@ type DataSourceConfig struct {
 	Url string `mapstructure:"url"`
 }
 
-// check 校验配置文件必填项
-func (c *configuration) check() {
-
-}
-
 var config *configuration
 
 func GetConfig() *configuration {
@@ -56,8 +51,6 @@ func InitConfig() {
 	if err != nil {
 		logrus.Fatalf("读取配置文件失败: %+v", err)
 	}
-
-	c.check()
 
 	config = &c
 }
