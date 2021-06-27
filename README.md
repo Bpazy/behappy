@@ -2,7 +2,9 @@
 ![Build](https://github.com/Bpazy/behappy/workflows/Build/badge.svg)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=Bpazy_behappy&metric=alert_status)](https://sonarcloud.io/dashboard?id=Bpazy_behappy)
 
-Don't worry,be happy. 风力掀天浪打头，只须一笑不须愁
+Don't worry, be happy. 风力掀天浪打头，只须一笑不须愁。
+
+本项目的目标将用户的比赛信息推送到 QQ 群中，供群友点评。
 
 ## 效果预览
 ![2](https://user-images.githubusercontent.com/9838749/123549535-1a3ce300-d79c-11eb-9996-12bf03ce6882.png)
