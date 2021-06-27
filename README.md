@@ -4,6 +4,10 @@
 
 Don't worry,be happy. 风力掀天浪打头，只须一笑不须愁
 
+## 效果预览
+![2](https://user-images.githubusercontent.com/9838749/123549535-1a3ce300-d79c-11eb-9996-12bf03ce6882.png)
+
+
 ## 使用
 ```shell
 $ ./behappy --help
@@ -24,10 +28,10 @@ Flags:
 Use "behappy [command] --help" for more information about a command.
 ```
 
-## 实现
+## 开发
+### 项目原理？
 基于 opendota 扫描战绩，基于 mirai 提供 QQ 交互能力
 
-## 开发
 ### 如何编译？
 > 请注意，编译具有以下依赖项:
 > 1. Golang
