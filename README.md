@@ -26,3 +26,12 @@ Use "behappy [command] --help" for more information about a command.
 
 ## 实现
 基于 opendota 扫描战绩，基于 mirai 提供 QQ 交互能力
+
+## 开发
+### 如何编译？
+> 请注意，编译具有以下依赖项:
+> 1. Golang
+> 2. Make
+
+简单的执行 make 命令即可，编译的文件在 `bin` 目录下。
+如果只需要编译到 windows 平台，可以执行命令: `make windows-amd64`。更详细的用法，你可以直接查看根目录中 `Makefile` 文件。
