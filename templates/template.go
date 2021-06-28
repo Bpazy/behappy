@@ -1,33 +1,25 @@
 package templates
 
 import (
+	"bytes"
 	"embed"
 	_ "embed"
 	"html/template"
-	"os"
 )
 
 //go:embed *.tmpl
 var winTemplate embed.FS
 
-func GetWinTemplate() error {
+func GetMessage(data map[string]interface{}) (string, error) {
 	tpl, err := template.ParseFS(winTemplate, "*.tmpl")
 	if err != nil {
-		return err
+		return "", err
 	}
 
-	err = tpl.ExecuteTemplate(os.Stdout, "singleWin.tmpl", map[string]interface{}{
-		"Win":        true,
-		"Name":       "测试",
-		"HeroName":   "斧王",
-		"MatchID":    "1111111",
-		"MatchLevel": "Very High",
-		"Kills":      "1",
-		"Deaths":     "1",
-		"Assists":    "1",
-	})
+	buf := new(bytes.Buffer)
+	err = tpl.ExecuteTemplate(buf, "message.tmpl", data)
 	if err != nil {
-		return err
+		return "", err
 	}
-	return nil
+	return buf.String(), nil
 }
