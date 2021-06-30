@@ -9,6 +9,7 @@ import (
 	"github.com/Bpazy/behappy/models"
 	"github.com/Bpazy/behappy/opendota"
 	"github.com/Bpazy/behappy/qq"
+	"github.com/Bpazy/behappy/templates"
 	"github.com/sirupsen/logrus"
 	"strconv"
 	"strings"
@@ -27,12 +28,6 @@ const multiFailMsgTemplate = `惨的，「%s」%s排送分啊
 比赛等级：%s
 
 %s`
-
-const singleMatchDescTemplate = `英雄: %s
-比赛ID：%d
-比赛等级: %s
-
-击杀: %d, 死亡: %d, 助攻: %d`
 
 func SubscribeFunc() {
 	playerIDs := dao.ListAllPlayerIDs()
@@ -89,15 +84,22 @@ func SubscribeFunc() {
 			message := ""
 			if len(matchPlayers) == 1 {
 				mp := matchPlayers[0]
-
 				sp := dao.GetSubPlayer(groupID, mp.PlayerID)
 
-				pretty := fmt.Sprintf(singleMatchDescTemplate, dao.GetHeroName(mp.HeroID), mp.MatchID, mp.SkillString(), mp.Kills, mp.Deaths, mp.Assists)
-
-				if mp.IsWin() {
-					message = fmt.Sprintf("嫩吊带，%s竟然赢了 \n\n%s", sp.Name(), pretty)
+				data := map[string]interface{}{
+					"Win":        mp.IsWin(),
+					"Name":       sp.Name(),
+					"HeroName":   dao.GetHeroName(mp.HeroID),
+					"MatchID":    mp.MatchID,
+					"MatchLevel": mp.SkillString(),
+					"Kills":      mp.Kills,
+					"Deaths":     mp.Deaths,
+					"Assists":    mp.Assists,
+				}
+				if m, err := templates.GetMessage(data); err != nil {
+					message = m
 				} else {
-					message = fmt.Sprintf("惨的，%s又输了 \n\n%s", sp.Name(), pretty)
+					logrus.Errorf("模板错误: %+v", err)
 				}
 			} else {
 				mp := matchPlayers[0]

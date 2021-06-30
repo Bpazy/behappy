@@ -1,6 +1,3 @@
-{{ if .MultiPlayer }}
-
-{{ else -}}
 {{ if .Win -}}
     嫩吊带，{{ .Name }}竟然赢了
 {{ else -}}
@@ -11,4 +8,3 @@
 比赛等级: {{ .MatchLevel }}
 
 击杀: {{ .Kills }}, 死亡: {{ .Deaths }}, 助攻: {{ .Assists }}
-{{ end }}

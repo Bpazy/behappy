@@ -7,15 +7,14 @@ import (
 
 func TestGetWinTemplate(t *testing.T) {
 	data := map[string]interface{}{
-		"MultiPlayer": false,
-		"Win":         true,
-		"Name":        "测试",
-		"HeroName":    "斧王",
-		"MatchID":     "1111111",
-		"MatchLevel":  "Very High",
-		"Kills":       "1",
-		"Deaths":      "1",
-		"Assists":     "1",
+		"Win":        true,
+		"Name":       "测试",
+		"HeroName":   "斧王",
+		"MatchID":    "1111111",
+		"MatchLevel": "Very High",
+		"Kills":      "1",
+		"Deaths":     "1",
+		"Assists":    "1",
 	}
 	output, err := GetMessage(data)
 	if err != nil {
