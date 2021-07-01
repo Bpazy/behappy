@@ -16,14 +16,14 @@ func TestGetWinTemplate(t *testing.T) {
 		"Deaths":     "1",
 		"Assists":    "1",
 	}
-	output, err := GetMessage(data)
+	output, err := GetSingleMessage(data)
 	if err != nil {
 		t.Error(err)
 	}
 	log.Println(output)
 
 	data["Win"] = false
-	output, err = GetMessage(data)
+	output, err = GetSingleMessage(data)
 	if err != nil {
 		t.Error(err)
 	}

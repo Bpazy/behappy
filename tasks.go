@@ -96,7 +96,8 @@ func SubscribeFunc() {
 					"Deaths":     mp.Deaths,
 					"Assists":    mp.Assists,
 				}
-				if m, err := templates.GetMessage(data); err != nil {
+				logrus.Infof("获取模板入参: %+v", data)
+				if m, err := templates.GetSingleMessage(data); err != nil {
 					message = m
 				} else {
 					logrus.Errorf("模板错误: %+v", err)

@@ -10,7 +10,8 @@ import (
 //go:embed *.tmpl
 var winTemplate embed.FS
 
-func GetMessage(data map[string]interface{}) (string, error) {
+//GetSingleMessage 获取单排的模板消息
+func GetSingleMessage(data map[string]interface{}) (string, error) {
 	tpl, err := template.ParseFS(winTemplate, "*.tmpl")
 	if err != nil {
 		return "", err
