@@ -98,9 +98,9 @@ func SubscribeFunc() {
 				}
 				logrus.Infof("获取模板入参: %+v", data)
 				if m, err := templates.GetSingleMessage(data); err != nil {
-					message = m
-				} else {
 					logrus.Errorf("模板错误: %+v", err)
+				} else {
+					message = m
 				}
 			} else {
 				mp := matchPlayers[0]
