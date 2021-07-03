@@ -53,8 +53,10 @@ func ServeMirai() {
 				SendGroupMessage(e.Sender.Group.ID, "订阅成功")
 			} else {
 				// 存在则更新
+				oldAlias := savedSP.Alias
 				savedSP.Alias = submatch[2]
 				dao.UpdateSubPlayer(savedSP)
+				fmt.Sprintf("%s 更新订阅成功: [%s] 被变更为 [%s]", e.Sender.MemberName, oldAlias, savedSP.Alias)
 				SendGroupMessage(e.Sender.Group.ID, "更新订阅成功")
 			}
 
