@@ -108,7 +108,8 @@ func SubscribeFunc() {
 				pretty := ""
 				for _, mp := range matchPlayers {
 					sp := dao.GetSubPlayer(groupID, mp.PlayerID)
-					pretty += fmt.Sprintf("%s玩%s杀了 %d 个, 死了 %d 次, 助攻 %d 个\n", sp.Name(), dao.GetHeroName(mp.HeroID), mp.Kills, mp.Deaths, mp.Assists)
+					kda := (float64(mp.Kills) + float64(mp.Deaths)) / float64(mp.Assists)
+					pretty += fmt.Sprintf("%s玩%s KDA: %.3g (%d, %d, %d)\n", sp.Name(), dao.GetHeroName(mp.HeroID), kda, mp.Kills, mp.Deaths, mp.Assists)
 				}
 				pretty = pretty[:len(pretty)-1]
 
