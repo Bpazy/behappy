@@ -10,6 +10,7 @@ import (
 	"github.com/Bpazy/behappy/opendota"
 	"github.com/Bpazy/behappy/qq"
 	"github.com/Bpazy/behappy/templates"
+	"github.com/Bpazy/behappy/util"
 	"github.com/sirupsen/logrus"
 	"strconv"
 	"strings"
@@ -108,8 +109,8 @@ func SubscribeFunc() {
 				pretty := ""
 				for _, mp := range matchPlayers {
 					sp := dao.GetSubPlayer(groupID, mp.PlayerID)
-					kda := (float64(mp.Kills) + float64(mp.Deaths)) / float64(mp.Assists)
-					pretty += fmt.Sprintf("%s玩%s KDA: %.3g (%d, %d, %d)\n", sp.Name(), dao.GetHeroName(mp.HeroID), kda, mp.Kills, mp.Deaths, mp.Assists)
+					kda := util.GetKda(mp.Kills, mp.Deaths, mp.Assists)
+					pretty += fmt.Sprintf("%s玩%s KDA: %s (%d, %d, %d)\n", sp.Name(), dao.GetHeroName(mp.HeroID), kda, mp.Kills, mp.Deaths, mp.Assists)
 				}
 				pretty = pretty[:len(pretty)-1]
 
