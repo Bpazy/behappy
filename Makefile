@@ -8,7 +8,6 @@ endif
 LDFLAGS="-s -w -X github.com/Bpazy/behappy.buildVer=${VERSION}"
 GOBUILD=go build -ldflags=${LDFLAGS}
 CMDPATH=./cmd/behappy
-export GOPROXY=https://mirrors.aliyun.com/goproxy/
 
 all: linux-amd64 darwin-amd64 windows-amd64 # Most used
 
