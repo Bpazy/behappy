@@ -32,6 +32,7 @@ const multiFailMsgTemplate = `惨的，「%s」%s排送分啊
 
 func SubscribeFunc() {
 	playerIDs := dao.ListAllPlayerIDs()
+	logrus.Printf("待检测 playerIDs: %v", playerIDs)
 	if len(playerIDs) == 0 {
 		return
 	}
