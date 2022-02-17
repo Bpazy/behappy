@@ -21,5 +21,5 @@ func GetMatchPlayers(playerID string) []models.MatchPlayer {
 	if err != nil {
 		logrus.Printf("从 opendota 获取玩家比赛列表失败, 源字符串 %s, 错误: %+v", body, err)
 	}
-	return mps
+	return mps[0:1]
 }
