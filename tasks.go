@@ -40,7 +40,7 @@ func SubscribeFunc() {
 	// 新比赛
 	var newMatchPlayers []*models.MatchPlayer
 	for _, pid := range playerIDs {
-		matchPlayers := opendota.GetMatchPlayers(pid, 1)
+		matchPlayers := opendota.GetMatchPlayers(pid)
 		for _, mp := range matchPlayers {
 			mp.PlayerID = pid
 			m := dao.GetMatchPlayer(mp.MatchID, mp.PlayerID)
