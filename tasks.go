@@ -97,6 +97,7 @@ func SubscribeFunc() {
 					"Kills":      mp.Kills,
 					"Deaths":     mp.Deaths,
 					"Assists":    mp.Assists,
+					"Duration":   mp.DurationMinutes(),
 				}
 				logrus.Infof("获取模板入参: %+v", data)
 				if m, err := templates.GetSingleMessage(data); err != nil {

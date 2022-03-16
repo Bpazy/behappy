@@ -9,7 +9,7 @@ type MatchPlayer struct {
 	PlayerID     string `gorm:"index"`
 	PlayerSlot   int    `json:"player_slot" gorm:"not null"`
 	RadiantWin   bool   `json:"radiant_win" gorm:"not null"`
-	Duration     int    `json:"duration" gorm:"not null"`
+	Duration     int    `json:"duration" gorm:"not null"` // Seconds
 	GameMode     int    `json:"game_mode" gorm:"not null"`
 	LobbyType    int    `json:"lobby_type" gorm:"not null"`
 	HeroID       int    `json:"hero_id" gorm:"not null"`
@@ -42,6 +42,10 @@ func (m MatchPlayer) SkillString() string {
 		return "High"
 	}
 	return "Normal"
+}
+
+func (m MatchPlayer) DurationMinutes() int {
+	return m.Duration / 60
 }
 
 type SubscribePlayer struct {

@@ -1,7 +1,7 @@
 {{ if .Win -}}
-    嫩吊带，{{ .Name }}竟然赢了
+    嫩吊带，{{ .Name }}有来有回了{{ .Duration }}分钟之后竟然赢了
 {{ else -}}
-    惨的，{{ .Name }}又输了
+    惨的，{{ .Name }}又输了，甚至被锤了{{ .Duration }}分钟
 {{ end }}
 英雄: {{ .HeroName }}
 比赛ID：{{ .MatchID }}
