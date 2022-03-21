@@ -88,6 +88,7 @@ func SubscribeFunc() {
 				mp := matchPlayers[0]
 				sp := dao.GetSubPlayer(groupID, mp.PlayerID)
 
+				winTimes, loseTimes := GetWinOrLoseTimesInRow(sp.PlayerID)
 				data := map[string]interface{}{
 					"Win":        mp.IsWin(),
 					"Name":       sp.Name(),
@@ -98,6 +99,8 @@ func SubscribeFunc() {
 					"Deaths":     mp.Deaths,
 					"Assists":    mp.Assists,
 					"Duration":   mp.DurationMinutes(),
+					"winTimes":   winTimes,
+					"loseTimes":  loseTimes,
 				}
 				logrus.Infof("获取模板入参: %+v", data)
 				if m, err := templates.GetSingleMessage(data); err != nil {
@@ -125,6 +128,29 @@ func SubscribeFunc() {
 			qq.SendGroupMessage(groupID, message)
 		}
 	}
+}
+
+func GetWinOrLoseTimesInRow(playerID string) (winTimes, loseTimes int) {
+	matches := dao.ListRecentMatchPlayers(playerID)
+	if len(matches) == 0 {
+		return 0, 0
+	}
+	firstWin := matches[0].IsWin()
+	for _, match := range matches {
+		if firstWin && match.IsWin() {
+			winTimes++
+		}
+		if firstWin && !match.IsWin() {
+			break
+		}
+		if !firstWin && !match.IsWin() {
+			loseTimes++
+		}
+		if !firstWin && match.IsWin() {
+			break
+		}
+	}
+	return
 }
 
 func hanziJoin(matchPlayers []*models.MatchPlayer, playerID2Name map[string]string) string {

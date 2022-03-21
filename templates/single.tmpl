@@ -1,7 +1,15 @@
 {{ if .Win -}}
-    嫩吊带，{{ .Name }}跟菜鸡互啄了{{ .Duration }}分钟之后竟然赢了
+    {{ if ge .winTimes 3 -}}
+        ？？？挂比“{{ .Name }}”已经 {{.winTimes}} 连胜了
+    {{ else -}}
+        嫩吊带，“{{ .Name }}”跟菜鸡互啄了 {{ .Duration }} 分钟之后竟然赢了
+    {{ end -}}
 {{ else -}}
-    惨的，{{ .Name }}被锤了{{ .Duration }}分钟之后输了
+    {{ if ge .loseTimes 3 -}}
+        {{.loseTimes}} 连跪，“{{ .Name }}” 是真尼玛的菜
+    {{ else -}}
+        惨的，“{{ .Name }}”被锤了 {{ .Duration }} 分钟之后输了
+    {{ end -}}
 {{ end }}
 英雄: {{ .HeroName }}
 比赛ID：{{ .MatchID }}
