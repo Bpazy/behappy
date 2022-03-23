@@ -33,7 +33,6 @@ func InitDB() {
 		&models.MatchPlayer{},
 		&models.Hero{},
 		&models.SubscribePlayer{},
-		&models.Joke{},
 	))
 }
 
