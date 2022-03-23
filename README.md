@@ -29,6 +29,17 @@ Flags:
 
 Use "behappy [command] --help" for more information about a command.
 ```
+第一次启动会自动初始化 schema, tables
+
+配置文件 `~/.behappy.yaml`:
+```yaml
+mirai:
+  botqq: 10001
+steamapi:
+  key: AXAFJQPDJV2312
+datasource:
+  url: USERNAME:PASSWORD@tcp(example-mysql.com:3306)/behappy?charset=utf8mb4&parseTime=True&loc=Local
+```
 
 ## 开发
 ### 项目原理？
