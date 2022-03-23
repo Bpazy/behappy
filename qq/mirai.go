@@ -234,9 +234,9 @@ func UploadGroupImage() {
 }
 
 func Auth() (string, error) {
-	authKey := "1234567890"
-	rb, err := http.PostJson("http://localhost:8080/auth", map[string]string{
-		"authKey": authKey,
+	verifyKey := "1234567890"
+	rb, err := http.PostJson("http://localhost:8080/verify", map[string]string{
+		"verifyKey": verifyKey,
 	})
 	if err != nil {
 		return "", err
@@ -248,7 +248,7 @@ func Auth() (string, error) {
 	var authResult AuthResult
 	bjson.MustJsonUnmarshal(rb, &authResult)
 	if authResult.Code != 0 {
-		return "", errors.Newf("auth 失败，请检查 authKey: %s\n", authKey)
+		return "", errors.Newf("verify 失败，请检查 verifyKey: %s\n", verifyKey)
 	}
 	logrus.Info("Mirai auth 成功")
 
@@ -257,7 +257,7 @@ func Auth() (string, error) {
 		Msg  string `json:"msg"`
 	}
 	response := VerifyResult{}
-	b, err := http.PostJson("http://localhost:8080/verify", map[string]interface{}{
+	b, err := http.PostJson("http://localhost:8080/bind", map[string]interface{}{
 		"sessionKey": authResult.Session,
 		"qq":         config.GetConfig().Mirai.BotQQ,
 	})
