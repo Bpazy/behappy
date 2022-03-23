@@ -76,15 +76,3 @@ type SteamApiResult struct {
 		Count  int    `json:"count"`
 	} `json:"result"`
 }
-
-type Joke struct {
-	Content       string `gorm:"type:longtext"`
-	Type          string `gorm:"default:text;not null"`
-	LimitedHeroId *int   `gorm:"index"`
-	gorm.Model
-}
-
-const (
-	JokeTypeText string = "text"
-	JokeTypeImg  string = "img"
-)

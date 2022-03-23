@@ -198,22 +198,3 @@ func InitHeros() {
 	heros := steamApiResult.Result.Heroes
 	dao.AddHeros(heros)
 }
-
-func TellJoke() {
-	joke := dao.RandJoke()
-	if joke == nil {
-		return
-	}
-
-	GIDs := dao.ListGroupIDs()
-	for _, ID := range GIDs {
-		switch joke.Type {
-		case models.JokeTypeText:
-			qq.SendGroupMessage(ID, "每日刀梗：\n\n"+joke.Content)
-		case models.JokeTypeImg:
-
-		default:
-			logrus.Errorf("Joke type %s 不存在", joke.Type)
-		}
-	}
-}
