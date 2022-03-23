@@ -15,6 +15,8 @@ func TestGetWinTemplate(t *testing.T) {
 		"Kills":      1,
 		"Deaths":     1,
 		"Assists":    1,
+		"winTimes":   1,
+		"loseTimes":  0,
 	}
 	output, err := GetSingleMessage(data)
 	if err != nil {
