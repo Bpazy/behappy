@@ -1,11 +1,11 @@
 {{ if .Win -}}
-    {{ if ge .winTimes 3 -}}
+    {{ if ge .winTimes 5 -}}
         ？？？挂比“{{ .Name }}”已经 {{.winTimes}} 连胜了
     {{ else -}}
         嫩吊带，“{{ .Name }}”跟菜鸡互啄了 {{ .Duration }} 分钟之后竟然赢了
     {{ end -}}
 {{ else -}}
-    {{ if ge .loseTimes 3 -}}
+    {{ if ge .loseTimes 5 -}}
         {{.loseTimes}} 连跪，“{{ .Name }}” 是真尼玛的菜
     {{ else -}}
         惨的，“{{ .Name }}”被锤了 {{ .Duration }} 分钟之后输了
