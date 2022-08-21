@@ -30,6 +30,17 @@ const multiFailMsgTemplate = `惨的，「%s」%s排送分啊
 
 %s`
 
+func InitHeros() {
+	logrus.Info("初始化英雄数据")
+	b := http.Get(fmt.Sprintf("http://api.steampowered.com/IEconDOTA2_570/GetHeroes/v0001?key=%s&language=zh", config.GetConfig().SteamAPI.Key))
+
+	var steamApiResult models.SteamApiResult
+	bjson.MustJsonUnmarshal(b, &steamApiResult)
+
+	heros := steamApiResult.Result.Heroes
+	dao.AddHeros(heros)
+}
+
 func SubscribeFunc() {
 	playerIDs := dao.ListAllPlayerIDs()
 	logrus.Printf("待检测 playerIDs: %v", playerIDs)
@@ -193,15 +204,4 @@ func num2ChineseWord(i int) string {
 		return "五"
 	}
 	return strconv.Itoa(i)
-}
-
-func InitHeros() {
-	logrus.Info("初始化英雄数据")
-	b := http.Get(fmt.Sprintf("http://api.steampowered.com/IEconDOTA2_570/GetHeroes/v0001?key=%s&language=zh", config.GetConfig().SteamAPI.Key))
-
-	var steamApiResult models.SteamApiResult
-	bjson.MustJsonUnmarshal(b, &steamApiResult)
-
-	heros := steamApiResult.Result.Heroes
-	dao.AddHeros(heros)
 }
