@@ -46,16 +46,14 @@ func SubscribeFunc() {
 }
 
 func buildMessage(matchPlayers []*models.MatchPlayer, groupID int, playerID2Name map[string]string) string {
-	message := ""
 	if len(matchPlayers) == 1 {
-		message = getSinglePlayerMessage(matchPlayers, groupID, message)
+		return getSinglePlayerMessage(matchPlayers, groupID)
 	} else {
-		message = getMultiPlayersMessage(matchPlayers, groupID, message, playerID2Name)
+		return getMultiPlayersMessage(matchPlayers, groupID, playerID2Name)
 	}
-	return message
 }
 
-func getSinglePlayerMessage(matchPlayers []*models.MatchPlayer, groupID int, message string) string {
+func getSinglePlayerMessage(matchPlayers []*models.MatchPlayer, groupID int) string {
 	mp := matchPlayers[0]
 	sp := dao.GetSubPlayer(groupID, mp.PlayerID)
 
@@ -74,15 +72,14 @@ func getSinglePlayerMessage(matchPlayers []*models.MatchPlayer, groupID int, mes
 		"loseTimes":  loseTimes,
 	}
 	logrus.Infof("获取模板入参: %+v", data)
-	if m, err := templates.GetSingleMessage(data); err != nil {
+	m, err := templates.GetSingleMessage(data)
+	if err != nil {
 		logrus.Errorf("模板错误: %+v", err)
-	} else {
-		message = m
 	}
-	return message
+	return m
 }
 
-func getMultiPlayersMessage(matchPlayers []*models.MatchPlayer, groupID int, message string, playerID2Name map[string]string) string {
+func getMultiPlayersMessage(matchPlayers []*models.MatchPlayer, groupID int, playerID2Name map[string]string) string {
 	mp := matchPlayers[0]
 
 	pretty := ""
@@ -94,11 +91,10 @@ func getMultiPlayersMessage(matchPlayers []*models.MatchPlayer, groupID int, mes
 	pretty = pretty[:len(pretty)-1]
 
 	if mp.IsWin() {
-		message = fmt.Sprintf(multiWinMsgTemplate, hanziJoin(matchPlayers, playerID2Name), num2Hanzi(len(matchPlayers)), mp.MatchID, mp.SkillString(), pretty)
+		return fmt.Sprintf(multiWinMsgTemplate, hanziJoin(matchPlayers, playerID2Name), num2Hanzi(len(matchPlayers)), mp.MatchID, mp.SkillString(), pretty)
 	} else {
-		message = fmt.Sprintf(multiFailMsgTemplate, hanziJoin(matchPlayers, playerID2Name), num2Hanzi(len(matchPlayers)), mp.MatchID, mp.SkillString(), pretty)
+		return fmt.Sprintf(multiFailMsgTemplate, hanziJoin(matchPlayers, playerID2Name), num2Hanzi(len(matchPlayers)), mp.MatchID, mp.SkillString(), pretty)
 	}
-	return message
 }
 
 func getNewMatchPlayersByMatchId(subNewMatchPlayers []*models.MatchPlayer) map[int64][]*models.MatchPlayer {
