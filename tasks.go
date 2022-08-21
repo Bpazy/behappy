@@ -38,22 +38,7 @@ func SubscribeFunc() {
 	}
 
 	// 新比赛
-	var newMatchPlayers []*models.MatchPlayer
-	for _, pid := range playerIDs {
-		matchPlayers := opendota.GetMatchPlayers(pid)
-		for _, mp := range matchPlayers {
-			mp.PlayerID = pid
-			m := dao.GetMatchPlayer(mp.MatchID, mp.PlayerID)
-			if m != nil {
-				// 比赛已存在
-				continue
-			}
-
-			logrus.Printf("探测到新的比赛：%d", mp.MatchID)
-			newMatchPlayers = append(newMatchPlayers, &mp)
-			dao.SaveMatchPlayer(&mp)
-		}
-	}
+	newMatchPlayers := detectAndSaveNewMatches(playerIDs)
 
 	groupID2MatchPlayers := map[int][]*models.MatchPlayer{}
 	for _, mp := range newMatchPlayers {
@@ -128,6 +113,25 @@ func SubscribeFunc() {
 			qq.SendGroupMessage(groupID, message)
 		}
 	}
+}
+
+func detectAndSaveNewMatches(playerIDs []string) (result []*models.MatchPlayer) {
+	for _, pid := range playerIDs {
+		matchPlayers := opendota.GetMatchPlayers(pid)
+		for _, mp := range matchPlayers {
+			mp.PlayerID = pid
+			m := dao.GetMatchPlayer(mp.MatchID, mp.PlayerID)
+			if m != nil {
+				// 比赛已存在
+				continue
+			}
+
+			logrus.Printf("探测到新的比赛：%d", mp.MatchID)
+			result = append(result, &mp)
+			dao.SaveMatchPlayer(&mp)
+		}
+	}
+	return result
 }
 
 func GetWinOrLoseTimesInRow(playerID string) (winTimes, loseTimes int) {
