@@ -8,21 +8,21 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func GetMatchPlayers(playerID string) (mps []models.MatchPlayer) {
+func GetMatchPlayers(playerID string) (result []models.MatchPlayer) {
 	r, err := http.Client.R().Get(fmt.Sprintf("https://api.opendota.com/api/players/%s/recentMatches", playerID))
 	if err != nil {
 		logrus.Printf("从 opendota 获取玩家比赛列表失败: %+v", err)
-		return mps
+		return result
 	}
 
 	body := r.Body()
-	err = json.Unmarshal(body, &mps)
+	err = json.Unmarshal(body, &result)
 	if err != nil {
 		logrus.Printf("从 opendota 获取玩家比赛列表失败, 源字符串 %s, 错误: %+v", body, err)
-		return mps
+		return result
 	}
-	if len(mps) == 0 {
-		return mps
+	if len(result) == 0 {
+		return result
 	}
-	return mps[0:1]
+	return result[0:1]
 }
