@@ -37,15 +37,9 @@ func SubscribeFunc() {
 		return
 	}
 
-	// 新比赛
-	newMatchPlayers := detectAndSaveNewMatches(playerIDs)
-
-	groupID2MatchPlayers := getNewMatchPlayersByGroupId(newMatchPlayers)
-	for groupID, subNewMatchPlayers := range groupID2MatchPlayers {
-		matchID2MatchPlayers := getNewMatchPlayersByMatchId(subNewMatchPlayers)
-
+	for groupID, subNewMatchPlayers := range getNewMatchPlayersByGroupId(detectAndSaveNewMatches(playerIDs)) {
 		playerID2Name := dao.GetSubPlayerMapByGroupId(groupID)
-		for _, matchPlayers := range matchID2MatchPlayers {
+		for _, matchPlayers := range getNewMatchPlayersByMatchId(subNewMatchPlayers) {
 			qq.SendGroupMessage(groupID, buildMessage(matchPlayers, groupID, playerID2Name))
 		}
 	}
