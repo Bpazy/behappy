@@ -91,9 +91,9 @@ func getMultiPlayersMessage(matchPlayers []*models.MatchPlayer, groupID int, pla
 	pretty = pretty[:len(pretty)-1]
 
 	if mp.IsWin() {
-		return fmt.Sprintf(multiWinMsgTemplate, hanziJoin(matchPlayers, playerID2Name), num2Hanzi(len(matchPlayers)), mp.MatchID, mp.SkillString(), pretty)
+		return fmt.Sprintf(multiWinMsgTemplate, joinChineseWords(matchPlayers, playerID2Name), num2ChineseWord(len(matchPlayers)), mp.MatchID, mp.SkillString(), pretty)
 	} else {
-		return fmt.Sprintf(multiFailMsgTemplate, hanziJoin(matchPlayers, playerID2Name), num2Hanzi(len(matchPlayers)), mp.MatchID, mp.SkillString(), pretty)
+		return fmt.Sprintf(multiFailMsgTemplate, joinChineseWords(matchPlayers, playerID2Name), num2ChineseWord(len(matchPlayers)), mp.MatchID, mp.SkillString(), pretty)
 	}
 }
 
@@ -160,7 +160,7 @@ func GetWinOrLoseTimesInRow(playerID string) (winTimes, loseTimes int) {
 	return
 }
 
-func hanziJoin(matchPlayers []*models.MatchPlayer, playerID2Name map[string]string) string {
+func joinChineseWords(matchPlayers []*models.MatchPlayer, playerID2Name map[string]string) string {
 	var names []string
 	for _, mp := range matchPlayers[:len(matchPlayers)-1] {
 		names = append(names, playerID2Name[mp.PlayerID])
@@ -179,7 +179,7 @@ func hanziJoin(matchPlayers []*models.MatchPlayer, playerID2Name map[string]stri
 	return jm
 }
 
-func num2Hanzi(i int) string {
+func num2ChineseWord(i int) string {
 	switch i {
 	case 1:
 		return "单"
