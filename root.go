@@ -60,8 +60,6 @@ func Run() {
 
 	startOpenDota()
 
-	//qq.UploadGroupImage()
-
 	qq.ServeMirai()
 }
 
@@ -79,11 +77,6 @@ func startOpenDota() {
 	c.AddFunc("@every 5m", func() {
 		SubscribeFunc()
 	})
-
-	//_, err := c.AddFunc("30 14 * * *", TellJoke)
-	//if err != nil {
-	//	panic(err)
-	//}
 
 	c.Start()
 }
