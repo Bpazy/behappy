@@ -40,79 +40,92 @@ func SubscribeFunc() {
 	// 新比赛
 	newMatchPlayers := detectAndSaveNewMatches(playerIDs)
 
-	groupID2MatchPlayers := map[int][]*models.MatchPlayer{}
+	groupID2MatchPlayers := getNewMatchPlayersByGroupId(newMatchPlayers)
+	for groupID, subNewMatchPlayers := range groupID2MatchPlayers {
+		matchID2MatchPlayers := getNewMatchPlayersByMatchId(subNewMatchPlayers)
+
+		playerID2Name := dao.GetSubPlayerMapByGroupId(groupID)
+		for _, matchPlayers := range matchID2MatchPlayers {
+			qq.SendGroupMessage(groupID, buildMessage(matchPlayers, groupID, playerID2Name))
+		}
+	}
+}
+
+func buildMessage(matchPlayers []*models.MatchPlayer, groupID int, playerID2Name map[string]string) string {
+	message := ""
+	if len(matchPlayers) == 1 {
+		message = getSinglePlayerMessage(matchPlayers, groupID, message)
+	} else {
+		message = getMultiPlayersMessage(matchPlayers, groupID, message, playerID2Name)
+	}
+	return message
+}
+
+func getSinglePlayerMessage(matchPlayers []*models.MatchPlayer, groupID int, message string) string {
+	mp := matchPlayers[0]
+	sp := dao.GetSubPlayer(groupID, mp.PlayerID)
+
+	winTimes, loseTimes := GetWinOrLoseTimesInRow(sp.PlayerID)
+	data := map[string]interface{}{
+		"Win":        mp.IsWin(),
+		"Name":       sp.Name(),
+		"HeroName":   dao.GetHeroName(mp.HeroID),
+		"MatchID":    mp.MatchID,
+		"MatchLevel": mp.SkillString(),
+		"Kills":      mp.Kills,
+		"Deaths":     mp.Deaths,
+		"Assists":    mp.Assists,
+		"Duration":   mp.DurationMinutes(),
+		"winTimes":   winTimes,
+		"loseTimes":  loseTimes,
+	}
+	logrus.Infof("获取模板入参: %+v", data)
+	if m, err := templates.GetSingleMessage(data); err != nil {
+		logrus.Errorf("模板错误: %+v", err)
+	} else {
+		message = m
+	}
+	return message
+}
+
+func getMultiPlayersMessage(matchPlayers []*models.MatchPlayer, groupID int, message string, playerID2Name map[string]string) string {
+	mp := matchPlayers[0]
+
+	pretty := ""
+	for _, mp := range matchPlayers {
+		sp := dao.GetSubPlayer(groupID, mp.PlayerID)
+		kda := util.GetKda(mp.Kills, mp.Deaths, mp.Assists)
+		pretty += fmt.Sprintf("%s玩%s KDA: %s (%d, %d, %d)\n", sp.Name(), dao.GetHeroName(mp.HeroID), kda, mp.Kills, mp.Deaths, mp.Assists)
+	}
+	pretty = pretty[:len(pretty)-1]
+
+	if mp.IsWin() {
+		message = fmt.Sprintf(multiWinMsgTemplate, hanziJoin(matchPlayers, playerID2Name), num2Hanzi(len(matchPlayers)), mp.MatchID, mp.SkillString(), pretty)
+	} else {
+		message = fmt.Sprintf(multiFailMsgTemplate, hanziJoin(matchPlayers, playerID2Name), num2Hanzi(len(matchPlayers)), mp.MatchID, mp.SkillString(), pretty)
+	}
+	return message
+}
+
+func getNewMatchPlayersByMatchId(subNewMatchPlayers []*models.MatchPlayer) map[int64][]*models.MatchPlayer {
+	result := map[int64][]*models.MatchPlayer{}
+	for _, mp := range subNewMatchPlayers {
+		result[mp.MatchID] = append(result[mp.MatchID], mp)
+	}
+	return result
+}
+
+func getNewMatchPlayersByGroupId(newMatchPlayers []*models.MatchPlayer) map[int][]*models.MatchPlayer {
+	result := map[int][]*models.MatchPlayer{}
 	for _, mp := range newMatchPlayers {
 		// 待通知的订阅群组
 		allSub := dao.ListSubPlayers(mp.PlayerID)
 		// 逐个群通知
 		for _, sp := range allSub {
-			matchPlayers, ok := groupID2MatchPlayers[sp.GroupID]
-			if !ok {
-				groupID2MatchPlayers[sp.GroupID] = []*models.MatchPlayer{mp}
-			} else {
-				groupID2MatchPlayers[sp.GroupID] = append(matchPlayers, mp)
-			}
+			result[sp.GroupID] = append(result[sp.GroupID], mp)
 		}
 	}
-
-	for groupID, matchPlayers := range groupID2MatchPlayers {
-		matchID2MatchPlayers := map[int64][]*models.MatchPlayer{}
-		for _, matchPlayer := range matchPlayers {
-			matchPlayers, ok := matchID2MatchPlayers[matchPlayer.MatchID]
-			if !ok {
-				matchID2MatchPlayers[matchPlayer.MatchID] = []*models.MatchPlayer{matchPlayer}
-			} else {
-				matchID2MatchPlayers[matchPlayer.MatchID] = append(matchPlayers, matchPlayer)
-			}
-		}
-
-		playerID2Name := dao.GetSubPlayerMapByGroupId(groupID)
-		for _, matchPlayers := range matchID2MatchPlayers {
-			message := ""
-			if len(matchPlayers) == 1 {
-				mp := matchPlayers[0]
-				sp := dao.GetSubPlayer(groupID, mp.PlayerID)
-
-				winTimes, loseTimes := GetWinOrLoseTimesInRow(sp.PlayerID)
-				data := map[string]interface{}{
-					"Win":        mp.IsWin(),
-					"Name":       sp.Name(),
-					"HeroName":   dao.GetHeroName(mp.HeroID),
-					"MatchID":    mp.MatchID,
-					"MatchLevel": mp.SkillString(),
-					"Kills":      mp.Kills,
-					"Deaths":     mp.Deaths,
-					"Assists":    mp.Assists,
-					"Duration":   mp.DurationMinutes(),
-					"winTimes":   winTimes,
-					"loseTimes":  loseTimes,
-				}
-				logrus.Infof("获取模板入参: %+v", data)
-				if m, err := templates.GetSingleMessage(data); err != nil {
-					logrus.Errorf("模板错误: %+v", err)
-				} else {
-					message = m
-				}
-			} else {
-				mp := matchPlayers[0]
-
-				pretty := ""
-				for _, mp := range matchPlayers {
-					sp := dao.GetSubPlayer(groupID, mp.PlayerID)
-					kda := util.GetKda(mp.Kills, mp.Deaths, mp.Assists)
-					pretty += fmt.Sprintf("%s玩%s KDA: %s (%d, %d, %d)\n", sp.Name(), dao.GetHeroName(mp.HeroID), kda, mp.Kills, mp.Deaths, mp.Assists)
-				}
-				pretty = pretty[:len(pretty)-1]
-
-				if mp.IsWin() {
-					message = fmt.Sprintf(multiWinMsgTemplate, hanziJoin(matchPlayers, playerID2Name), num2Hanzi(len(matchPlayers)), mp.MatchID, mp.SkillString(), pretty)
-				} else {
-					message = fmt.Sprintf(multiFailMsgTemplate, hanziJoin(matchPlayers, playerID2Name), num2Hanzi(len(matchPlayers)), mp.MatchID, mp.SkillString(), pretty)
-				}
-			}
-			qq.SendGroupMessage(groupID, message)
-		}
-	}
+	return result
 }
 
 func detectAndSaveNewMatches(playerIDs []string) (result []*models.MatchPlayer) {
