@@ -92,20 +92,39 @@ func getSinglePlayerMessage(matchPlayers []*models.MatchPlayer, groupID int) str
 
 func getMultiPlayersMessage(matchPlayers []*models.MatchPlayer, groupID int, playerID2Name map[string]string) string {
 	mp := matchPlayers[0]
+	pretty := joinKda(matchPlayers, groupID)
+	if mp.IsWin() {
+		return fmt.Sprintf(multiWinMsgTemplate, joinChineseWords(matchPlayers, playerID2Name), num2ChineseWord(len(matchPlayers)), mp.MatchID, mp.SkillString(), pretty)
+	} else {
+		pretty += appendRidicule(matchPlayers, playerID2Name)
+		return fmt.Sprintf(multiFailMsgTemplate, joinChineseWords(matchPlayers, playerID2Name), num2ChineseWord(len(matchPlayers)), mp.MatchID, mp.SkillString(), pretty)
+	}
+}
 
+func joinKda(matchPlayers []*models.MatchPlayer, groupID int) string {
 	pretty := ""
 	for _, mp := range matchPlayers {
 		sp := dao.GetSubPlayer(groupID, mp.PlayerID)
 		kda := util.GetKda(mp.Kills, mp.Deaths, mp.Assists)
 		pretty += fmt.Sprintf("%s玩%s KDA: %s (%d, %d, %d)\n", sp.Name(), dao.GetHeroName(mp.HeroID), kda, mp.Kills, mp.Deaths, mp.Assists)
 	}
-	pretty = pretty[:len(pretty)-1]
+	return pretty[:len(pretty)-1]
+}
 
-	if mp.IsWin() {
-		return fmt.Sprintf(multiWinMsgTemplate, joinChineseWords(matchPlayers, playerID2Name), num2ChineseWord(len(matchPlayers)), mp.MatchID, mp.SkillString(), pretty)
-	} else {
-		return fmt.Sprintf(multiFailMsgTemplate, joinChineseWords(matchPlayers, playerID2Name), num2ChineseWord(len(matchPlayers)), mp.MatchID, mp.SkillString(), pretty)
+func appendRidicule(matchPlayers []*models.MatchPlayer, playerID2Name map[string]string) string {
+	maxLoseMp := new(models.MatchPlayer)
+	maxLoseTimes := 0
+	for _, mp := range matchPlayers {
+		_, loseTimes := GetWinOrLoseTimesInRow(mp.PlayerID)
+		if loseTimes >= maxLoseTimes {
+			maxLoseTimes = loseTimes
+			maxLoseMp = mp
+		}
 	}
+	if maxLoseTimes >= 5 {
+		return fmt.Sprintf("\n\n黑哥TV已经带不动这个连跪%d把的菜逼%s了", maxLoseTimes, playerID2Name[maxLoseMp.PlayerID])
+	}
+	return ""
 }
 
 func getNewMatchPlayersByMatchId(subNewMatchPlayers []*models.MatchPlayer) map[int64][]*models.MatchPlayer {
