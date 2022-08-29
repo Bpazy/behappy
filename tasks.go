@@ -51,7 +51,7 @@ func SubscribeFunc() {
 	for groupID, subNewMatchPlayers := range getNewMatchPlayersByGroupId(detectAndSaveNewMatches(playerIDs)) {
 		playerID2Name := dao.GetSubPlayerMapByGroupId(groupID)
 		for _, matchPlayers := range getNewMatchPlayersByMatchId(subNewMatchPlayers) {
-			mirai.SendGroupMessage(groupID, buildMessage(matchPlayers, groupID, playerID2Name))
+			mirai.NewMessageSender().SendGroupMessage(groupID, buildMessage(matchPlayers, groupID, playerID2Name))
 		}
 	}
 }
