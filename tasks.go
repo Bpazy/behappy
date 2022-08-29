@@ -6,9 +6,9 @@ import (
 	"github.com/Bpazy/behappy/config"
 	"github.com/Bpazy/behappy/dao"
 	"github.com/Bpazy/behappy/http"
+	"github.com/Bpazy/behappy/mirai"
 	"github.com/Bpazy/behappy/models"
 	"github.com/Bpazy/behappy/opendota"
-	"github.com/Bpazy/behappy/qq"
 	"github.com/Bpazy/behappy/templates"
 	"github.com/Bpazy/behappy/util"
 	"github.com/sirupsen/logrus"
@@ -51,7 +51,7 @@ func SubscribeFunc() {
 	for groupID, subNewMatchPlayers := range getNewMatchPlayersByGroupId(detectAndSaveNewMatches(playerIDs)) {
 		playerID2Name := dao.GetSubPlayerMapByGroupId(groupID)
 		for _, matchPlayers := range getNewMatchPlayersByMatchId(subNewMatchPlayers) {
-			qq.SendGroupMessage(groupID, buildMessage(matchPlayers, groupID, playerID2Name))
+			mirai.SendGroupMessage(groupID, buildMessage(matchPlayers, groupID, playerID2Name))
 		}
 	}
 }

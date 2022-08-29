@@ -1,4 +1,4 @@
-package qq
+package mirai
 
 import (
 	"encoding/json"
