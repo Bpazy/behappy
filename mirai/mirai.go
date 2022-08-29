@@ -3,7 +3,6 @@ package mirai
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/Bpazy/behappy/bjson"
 	"github.com/Bpazy/behappy/config"
 	"github.com/Bpazy/behappy/dao"
 	"github.com/Bpazy/behappy/http"
@@ -49,14 +48,14 @@ func ServeMirai() {
 					PlayerID: submatch[1],
 					Alias:    submatch[2],
 				})
-				SendGroupMessage(e.Sender.Group.ID, "订阅成功")
+				NewMessageSender().SendGroupMessage(e.Sender.Group.ID, "订阅成功")
 			} else {
 				// 存在则更新
 				oldAlias := savedSP.Alias
 				savedSP.Alias = submatch[2]
 				dao.UpdateSubPlayer(savedSP)
 				msg := fmt.Sprintf("%s 更新了订阅: [%s] 被变更为 [%s]", e.Sender.MemberName, oldAlias, savedSP.Alias)
-				SendGroupMessage(e.Sender.Group.ID, msg)
+				NewMessageSender().SendGroupMessage(e.Sender.Group.ID, msg)
 			}
 
 		}
@@ -187,68 +186,13 @@ type SendMessageResponse struct {
 	MessageID int    `json:"messageId"`
 }
 
-func SendGroupMessage(target int, text string) {
-	session, err := Auth()
-	if err != nil {
-		logrus.Printf("发送群消息获取 session 失败: %+v", err)
-	}
-	defer Release(session)
-
-	response := SendMessageResponse{}
-	b, err := http.PostJson("http://localhost:8080/sendGroupMessage", NewSendMessage(session, target, text))
-	if err != nil {
-		logrus.Printf("发送群消息失败: %+v", err)
+func (ms *MessageSender) Release() {
+	if ms.Session == "" {
+		logrus.Printf("session 不存在")
 		return
 	}
-	bjson.MustJsonUnmarshal(b, &response)
-	if response.Code != 0 {
-		logrus.Printf("发送消息失败: %+v", response)
-	}
-}
-
-func Auth() (string, error) {
-	verifyKey := "1234567890"
-	rb, err := http.PostJson("http://localhost:8080/verify", map[string]string{
-		"verifyKey": verifyKey,
-	})
-	if err != nil {
-		return "", err
-	}
-	type AuthResult struct {
-		Code    int    `json:"code"`
-		Session string `json:"session"`
-	}
-	var authResult AuthResult
-	bjson.MustJsonUnmarshal(rb, &authResult)
-	if authResult.Code != 0 {
-		return "", errors.Newf("verify 失败，请检查 verifyKey: %s\n", verifyKey)
-	}
-	logrus.Info("Mirai auth 成功")
-
-	type VerifyResult struct {
-		Code int    `json:"code"`
-		Msg  string `json:"msg"`
-	}
-	response := VerifyResult{}
-	b, err := http.PostJson("http://localhost:8080/bind", map[string]interface{}{
-		"sessionKey": authResult.Session,
-		"qq":         config.GetConfig().Mirai.BotQQ,
-	})
-	if err != nil {
-		return "", err
-	}
-	bjson.MustJsonUnmarshal(b, &response)
-	if response.Code != 0 {
-		return "", errors.Newf("verify session 失败，请检查配置文件中的 BotQQ: %+v\n", response)
-	}
-
-	logrus.Info("Mirai session verify 成功")
-	return authResult.Session, nil
-}
-
-func Release(session string) {
 	rb, err := http.PostJson("http://localhost:8080/release", map[string]string{
-		"sessionKey": session,
+		"sessionKey": ms.Session,
 		"qq":         config.GetConfig().Mirai.BotQQ,
 	})
 	if err != nil {
