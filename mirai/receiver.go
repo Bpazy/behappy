@@ -3,20 +3,16 @@ package mirai
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/Bpazy/behappy/command"
 	"github.com/Bpazy/behappy/config"
-	"github.com/Bpazy/behappy/dao"
 	"github.com/Bpazy/behappy/http"
-	"github.com/Bpazy/behappy/models"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/errgo.v2/fmt/errors"
 	"io/ioutil"
-	"regexp"
 	"strconv"
 	"strings"
 )
-
-var subscribeR = regexp.MustCompile("订阅\\s+(\\d+)\\s+别名\\s+(.+)")
 
 // ServeMirai 开启 Mirai事件上报监听器
 func ServeMirai() {
@@ -42,29 +38,20 @@ func receiveMessage() func(c *gin.Context) {
 		logrus.Debugf("接受到来自 Mirai 的事件：%s", e)
 
 		if e.IsGroupMessage() {
-			submatch := subscribeR.FindStringSubmatch(e.MessageChain.PlainText())
-			if len(submatch) != 3 {
-				return
+			content := e.MessageChain.PlainText()
+			anyMatch := false
+			for _, cmd := range command.Commanders.RegisteredCommanders {
+				prefix := cmd.Keyword() + "/"
+				if !strings.HasPrefix(content, prefix) {
+					continue
+				}
+				anyMatch = true
+				args := strings.TrimLeft(content, prefix)
+				cmd.Run(e, args)
 			}
-
-			savedSP := dao.GetSubPlayer(e.Sender.Group.ID, submatch[1])
-			if savedSP == nil {
-				// 不存在
-				dao.SaveSubPlayer(&models.SubscribePlayer{
-					GroupID:  e.Sender.Group.ID,
-					PlayerID: submatch[1],
-					Alias:    submatch[2],
-				})
-				NewMessageSender().SendGroupMessage(e.Sender.Group.ID, "订阅成功")
-			} else {
-				// 存在则更新
-				oldAlias := savedSP.Alias
-				savedSP.Alias = submatch[2]
-				dao.UpdateSubPlayer(savedSP)
-				msg := fmt.Sprintf("%s 更新了订阅: [%s] 被变更为 [%s]", e.Sender.MemberName, oldAlias, savedSP.Alias)
-				NewMessageSender().SendGroupMessage(e.Sender.Group.ID, msg)
+			if !anyMatch {
+				NewMessageSender().SendGroupMessage(e.Sender.Group.ID, command.Commanders.GetHelpMessage())
 			}
-
 		}
 
 		c.JSON(200, nil)
