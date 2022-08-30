@@ -24,7 +24,14 @@ func ServeMirai() {
 	r := gin.New()
 	r.Use(gin.Recovery())
 	logrus.SetLevel(logrus.DebugLevel)
-	r.POST("/post", func(c *gin.Context) {
+	r.POST("/post", receiveMessage())
+
+	logrus.Infof("开始监听 %s, 等待 Mirai 事件上报", config.Addr)
+	logrus.Fatal(r.Run(config.Addr))
+}
+
+func receiveMessage() func(c *gin.Context) {
+	return func(c *gin.Context) {
 		all, err := ioutil.ReadAll(c.Request.Body)
 		if err != nil {
 			panic(err)
@@ -61,10 +68,7 @@ func ServeMirai() {
 		}
 
 		c.JSON(200, nil)
-	})
-
-	logrus.Infof("开始监听 %s, 等待 Mirai 事件上报", config.Addr)
-	logrus.Fatal(r.Run(config.Addr))
+	}
 }
 
 func (cs MessageChains) PlainText() string {
