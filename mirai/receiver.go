@@ -9,7 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/errgo.v2/fmt/errors"
-	"io/ioutil"
+	"io"
 	"strconv"
 	"strings"
 )
@@ -28,7 +28,7 @@ func ServeMirai() {
 
 func receiveMessage() func(c *gin.Context) {
 	return func(c *gin.Context) {
-		all, err := ioutil.ReadAll(c.Request.Body)
+		all, err := io.ReadAll(c.Request.Body)
 		if err != nil {
 			panic(err)
 		}
