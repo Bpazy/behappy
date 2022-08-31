@@ -15,18 +15,18 @@ func (s *SubscribeCommand) Keyword() string {
 	return "订阅"
 }
 
-func (s *SubscribeCommand) Run(event interface{}, arg string) {
+func (s *SubscribeCommand) Run(event interface{}, arg string) string {
 	split := strings.Split(arg, "/")
 	if len(split) < 2 {
-		return
+		return ""
 	}
 	steamID := split[0]
 	alias := split[1]
 
-	s.saveOrUpdateSubscribe(event.(*Event), steamID, alias)
+	return s.saveOrUpdateSubscribe(event.(*Event), steamID, alias)
 }
 
-func (s *SubscribeCommand) saveOrUpdateSubscribe(event *Event, steamID string, alias string) {
+func (s *SubscribeCommand) saveOrUpdateSubscribe(event *Event, steamID string, alias string) string {
 	savedSP := dao.GetSubPlayer(event.Sender.Group.ID, steamID)
 	if savedSP == nil {
 		// 不存在
@@ -35,14 +35,13 @@ func (s *SubscribeCommand) saveOrUpdateSubscribe(event *Event, steamID string, a
 			PlayerID: steamID,
 			Alias:    alias,
 		})
-		NewMessageSender().SendGroupMessage(event.Sender.Group.ID, "订阅成功")
+		return "订阅成功"
 	} else {
 		// 存在则更新
 		oldAlias := savedSP.Alias
 		savedSP.Alias = alias
 		dao.UpdateSubPlayer(savedSP)
-		msg := fmt.Sprintf("%s 更新了订阅: [%s] 被变更为 [%s]", event.Sender.MemberName, oldAlias, savedSP.Alias)
-		NewMessageSender().SendGroupMessage(event.Sender.Group.ID, msg)
+		return fmt.Sprintf("%s 更新了订阅: [%s] 被变更为 [%s]", event.Sender.MemberName, oldAlias, savedSP.Alias)
 	}
 }
 

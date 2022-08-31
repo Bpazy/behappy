@@ -38,16 +38,20 @@ func receiveMessage() func(c *gin.Context) {
 		logrus.Debugf("接受到来自 Mirai 的事件：%s", e)
 
 		if e.IsGroupMessage() {
-			content := e.MessageChain.PlainText()
+			if !e.MessageChain.IsAtMe() {
+				return
+			}
+			content := strings.TrimSpace(e.MessageChain.PlainText())
 			anyMatch := false
 			for _, cmd := range command.Commanders.RegisteredCommanders {
 				prefix := cmd.Keyword() + "/"
+				logrus.Printf("strings.HasPrefix: %t", strings.HasPrefix(content, prefix))
 				if !strings.HasPrefix(content, prefix) {
 					continue
 				}
 				anyMatch = true
 				args := strings.TrimLeft(content, prefix)
-				cmd.Run(e, args)
+				NewMessageSender().SendGroupMessage(e.Sender.Group.ID, cmd.Run(e, args))
 			}
 			if !anyMatch {
 				NewMessageSender().SendGroupMessage(e.Sender.Group.ID, command.Commanders.GetHelpMessage())
@@ -58,9 +62,9 @@ func receiveMessage() func(c *gin.Context) {
 	}
 }
 
-func (cs MessageChains) PlainText() string {
+func (cs *MessageChains) PlainText() string {
 	var ret string
-	for _, c := range cs {
+	for _, c := range *cs {
 		if c.Type == "Plain" {
 			ret += c.Text
 		} else {
@@ -71,12 +75,20 @@ func (cs MessageChains) PlainText() string {
 				ret += "「图片」"
 			case "AtAll":
 				ret += "@全体成员"
-			case "At":
-				ret += strconv.Itoa(c.Target)
 			}
 		}
 	}
 	return ret
+}
+
+func (cs *MessageChains) IsAtMe() bool {
+	for _, c := range *cs {
+		if c.Type != "At" {
+			continue
+		}
+		return strconv.Itoa(c.Target) == config.GetConfig().Mirai.BotQQ
+	}
+	return false
 }
 
 // Event Mirai 上报的事件

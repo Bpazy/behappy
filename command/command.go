@@ -6,7 +6,7 @@ import (
 
 type Commander interface {
 	Keyword() string
-	Run(event interface{}, arg string)
+	Run(event interface{}, arg string) string
 	Example() string
 }
 
@@ -22,9 +22,9 @@ func (c *CommandersChain) Register(cmd Commander) {
 }
 
 func (c *CommandersChain) GetHelpMessage() string {
-	result := "我支持这些查询: \n\n--------\n\n"
+	result := "我支持这些指令（需要@我）: \n"
 	for i, cmder := range c.RegisteredCommanders {
-		result = result + fmt.Sprintf("%d. %s\n", i, cmder.Example())
+		result = result + fmt.Sprintf("%d. %s\n", i+1, cmder.Example())
 	}
 	return result
 }
