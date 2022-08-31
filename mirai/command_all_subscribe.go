@@ -15,6 +15,9 @@ func (s *AllSubscribeCommand) Keyword() string {
 
 func (s *AllSubscribeCommand) Run(event interface{}, _ string) (result string) {
 	subscribePlayers := dao.ListSubPlayersByGroupId(event.(*Event).Sender.Group.ID)
+	if len(subscribePlayers) == 0 {
+		return "还没有订阅"
+	}
 	for _, player := range subscribePlayers {
 		result = result + fmt.Sprintf("* %s (%s)", player.PlayerID, player.Alias)
 	}
