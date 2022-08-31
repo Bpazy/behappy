@@ -33,7 +33,7 @@ func ListSubPlayersByGroupId(groupID int) []models.SubscribePlayer {
 	}
 	var result []models.SubscribePlayer
 	if err := db.Where(query).Take(&result).Error; err != nil {
-		panic(err)
+		logrus.Errorf("查询数据出错: %+v", err)
 	}
 	return result
 }
