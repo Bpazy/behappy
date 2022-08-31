@@ -37,6 +37,7 @@ func receiveMessage() func(c *gin.Context) {
 		e := NewEvent(all)
 		logrus.Debugf("接受到来自 Mirai 的事件：%s", e)
 
+		logrus.Debugf("Event type is GroupMessage: %t", e.IsGroupMessage())
 		if e.IsGroupMessage() {
 			if !e.MessageChain.IsAtMe() {
 				return
