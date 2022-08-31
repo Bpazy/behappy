@@ -33,7 +33,7 @@ func receiveMessage() func(c *gin.Context) {
 		logrus.Debugf("接受到来自 Mirai 的上报: %s", string(all))
 		e := NewEvent(all)
 		logrus.Debugf("接受到来自 Mirai 的事件：%s", e)
-		go handleMessage(e)
+		handleMessage(e)
 		c.JSON(200, nil)
 	}
 }
