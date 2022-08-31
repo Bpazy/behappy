@@ -86,7 +86,9 @@ func (cs *MessageChains) IsAtMe() bool {
 		if c.Type != "At" {
 			continue
 		}
-		return strconv.Itoa(c.Target) == config.GetConfig().Mirai.BotQQ
+		t := strconv.Itoa(c.Target)
+		logrus.Infof("At target: %s, Mirai.BotQQ: %s", t, config.GetConfig().Mirai.BotQQ)
+		return t == config.GetConfig().Mirai.BotQQ
 	}
 	return false
 }
