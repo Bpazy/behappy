@@ -3,6 +3,7 @@ package mirai
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/Bpazy/behappy/berrors"
 	"github.com/Bpazy/behappy/command"
 	"github.com/Bpazy/behappy/config"
 	"github.com/Bpazy/behappy/http"
@@ -28,38 +29,34 @@ func ServeMirai() {
 
 func receiveMessage() func(c *gin.Context) {
 	return func(c *gin.Context) {
-		all, err := io.ReadAll(c.Request.Body)
-		if err != nil {
-			panic(err)
-		}
+		all := berrors.Unwrap(io.ReadAll(c.Request.Body))
 		logrus.Debugf("接受到来自 Mirai 的上报: %s", string(all))
-
 		e := NewEvent(all)
 		logrus.Debugf("接受到来自 Mirai 的事件：%s", e)
-
-		logrus.Debugf("Event type is GroupMessage: %t", e.IsGroupMessage())
-		if e.IsGroupMessage() {
-			if !e.MessageChain.IsAtMe() {
-				return
-			}
-			content := strings.TrimSpace(e.MessageChain.PlainText())
-			anyMatch := false
-			for _, cmd := range command.Commanders.RegisteredCommanders {
-				prefix := cmd.Keyword()
-				logrus.Printf("strings.HasPrefix: %t", strings.HasPrefix(content, prefix))
-				if !strings.HasPrefix(content, prefix) {
-					continue
-				}
-				anyMatch = true
-				args := strings.TrimLeft(content, prefix+"/")
-				NewMessageSender().SendGroupMessage(e.Sender.Group.ID, cmd.Run(e, args))
-			}
-			if !anyMatch {
-				NewMessageSender().SendGroupMessage(e.Sender.Group.ID, command.Commanders.GetHelpMessage())
-			}
-		}
-
+		go handleMessage(e)
 		c.JSON(200, nil)
+	}
+}
+
+func handleMessage(e *Event) {
+	if e.IsGroupMessage() {
+		if !e.MessageChain.IsAtMe() {
+			return
+		}
+		content := strings.TrimSpace(e.MessageChain.PlainText())
+		anyMatch := false
+		for _, cmd := range command.Commanders.RegisteredCommanders {
+			prefix := cmd.Keyword()
+			if !strings.HasPrefix(content, prefix) {
+				continue
+			}
+			anyMatch = true
+			args := strings.TrimLeft(content, prefix+"/")
+			NewMessageSender().SendGroupMessage(e.Sender.Group.ID, cmd.Run(e, args))
+		}
+		if !anyMatch {
+			NewMessageSender().SendGroupMessage(e.Sender.Group.ID, command.Commanders.GetHelpMessage())
+		}
 	}
 }
 
