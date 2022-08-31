@@ -45,13 +45,13 @@ func receiveMessage() func(c *gin.Context) {
 			content := strings.TrimSpace(e.MessageChain.PlainText())
 			anyMatch := false
 			for _, cmd := range command.Commanders.RegisteredCommanders {
-				prefix := cmd.Keyword() + "/"
+				prefix := cmd.Keyword()
 				logrus.Printf("strings.HasPrefix: %t", strings.HasPrefix(content, prefix))
 				if !strings.HasPrefix(content, prefix) {
 					continue
 				}
 				anyMatch = true
-				args := strings.TrimLeft(content, prefix)
+				args := strings.TrimLeft(content, prefix+"/")
 				NewMessageSender().SendGroupMessage(e.Sender.Group.ID, cmd.Run(e, args))
 			}
 			if !anyMatch {

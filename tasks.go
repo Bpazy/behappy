@@ -139,7 +139,7 @@ func getNewMatchPlayersByGroupId(newMatchPlayers []*models.MatchPlayer) map[int]
 	result := map[int][]*models.MatchPlayer{}
 	for _, mp := range newMatchPlayers {
 		// 待通知的订阅群组
-		allSub := dao.ListSubPlayers(mp.PlayerID)
+		allSub := dao.ListSubPlayersByPlayerId(mp.PlayerID)
 		// 逐个群通知
 		for _, sp := range allSub {
 			result[sp.GroupID] = append(result[sp.GroupID], mp)

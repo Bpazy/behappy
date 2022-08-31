@@ -18,19 +18,24 @@ func ListAllPlayerIDs() (pids []string) {
 	return pids
 }
 
-func ListGroupIDs() []int {
-	var groupIDs []int
-	db.Model(&models.SubscribePlayer{}).Distinct("group_id").Find(&groupIDs)
-	return groupIDs
-}
-
-func ListSubPlayers(playerID string) []models.SubscribePlayer {
+func ListSubPlayersByPlayerId(playerID string) []models.SubscribePlayer {
 	var allSub []models.SubscribePlayer
 	if err := db.Where("player_id = ?", playerID).Find(&allSub).Error; err != nil {
 		logrus.Info("没有订阅的玩家")
 		return []models.SubscribePlayer{}
 	}
 	return allSub
+}
+
+func ListSubPlayersByGroupId(groupID int) []models.SubscribePlayer {
+	query := &models.SubscribePlayer{
+		GroupID: groupID,
+	}
+	var result []models.SubscribePlayer
+	if err := db.Where(query).Take(&result).Error; err != nil {
+		panic(err)
+	}
+	return result
 }
 
 func GetSubPlayer(groupID int, playerID string) *models.SubscribePlayer {
