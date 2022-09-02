@@ -183,6 +183,14 @@ func NewSendMessage(session string, target int, text string) *SendMessage {
 	}
 }
 
+func NewSendImageMessage(session string, target int, path string) *SendMessage {
+	return &SendMessage{
+		SessionKey:   session,
+		Target:       target,
+		MessageChain: MessageChains{MessageChain{Type: "Image", Path: path}},
+	}
+}
+
 type SendMessageResponse struct {
 	Code      int    `json:"code"`
 	Msg       string `json:"msg"`

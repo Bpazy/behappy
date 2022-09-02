@@ -54,6 +54,26 @@ func (ms *MessageSender) SendGroupMessage(target int, text string) {
 	}
 }
 
+func (ms *MessageSender) SendGroupImageMessage(target int, path string) {
+	session, err := ms.Auth()
+	if err != nil {
+		logrus.Printf("发送群消息获取 session 失败: %+v", err)
+		return
+	}
+	ms.Session = session
+	defer ms.Release()
+	b, err := http.PostJson(ms.GetMiraiSendGroupMessageUrl(), NewSendImageMessage(ms.Session, target, path))
+	if err != nil {
+		logrus.Printf("发送群消息失败: %+v", err)
+		return
+	}
+	response := SendMessageResponse{}
+	bjson.MustJsonUnmarshal(b, &response)
+	if response.Code != 0 {
+		logrus.Printf("发送群消息失败: %+v", response)
+	}
+}
+
 func (ms *MessageSender) Auth() (string, error) {
 	rb, err := http.PostJson(ms.GetMiraiVerifyUrl(), map[string]string{
 		"verifyKey": ms.VerifyKey,
