@@ -1,8 +1,10 @@
 package images
 
 import (
+	"embed"
 	"fmt"
 	"github.com/Bpazy/behappy/berrors"
+	"github.com/flopp/go-findfont"
 	"github.com/golang/freetype"
 	"github.com/golang/freetype/truetype"
 	"image"
@@ -12,8 +14,11 @@ import (
 	"os"
 )
 
-func Test(name string) {
-	templateFile, err := os.Open("assets/1.png")
+//go:embed assets/*
+var f embed.FS
+
+func Test(name string, year int, week int, times int) (string, error) {
+	templateFile, err := f.Open("assets/honor.png")
 	if err != nil {
 		panic(err)
 	}
@@ -30,54 +35,58 @@ func Test(name string) {
 	content := freetype.NewContext()
 	content.SetClip(newTemplateImage.Bounds())
 	content.SetDst(newTemplateImage)
-	content.SetSrc(image.Black) // 设置字体颜色
-	content.SetDPI(72)          // 设置字体分辨率
+	content.SetSrc(image.Black)
+	content.SetDPI(72)
 
 	content.SetFontSize(40) // 设置字体大小
-	fontKai := berrors.Unwrap(loadFont("C:\\Windows\\Fonts\\simkai.ttf"))
-	content.SetFont(fontKai) // 设置字体样式，就是我们上面加载的字体
+	fontKai := berrors.Unwrap(loadFont())
+	content.SetFont(fontKai)
 
 	// TODO 考虑通过返回值自适应换行
-	drawString, err := content.DrawString(name+"同志:", freetype.Pt(80, 320))
-	berrors.Unwrap(drawString, err)
-	berrors.Unwrap(content.DrawString("您在2022年度第30周中表现突出，参与比赛23局", freetype.Pt(120, 390)))
+	berrors.Unwrap(content.DrawString(name+"同志:", freetype.Pt(80, 320)))
+	berrors.Unwrap(content.DrawString(fmt.Sprintf("您在%d年度第%d周中表现突出，参与比赛%d局", year, week, times), freetype.Pt(120, 390)))
 	berrors.Unwrap(content.DrawString("被评为", freetype.Pt(80, 460)))
 
 	berrors.Unwrap(content.DrawString("特发此证，以资鼓励。", freetype.Pt(440, 460)))
-	// 设置字体大小
 	content.SetFontSize(48)
-	// 设置字体颜色
 	content.SetSrc(image.NewUniform(color.RGBA{R: 237, G: 39, B: 90, A: 255}))
 	berrors.Unwrap(content.DrawString("最佳劳模，", freetype.Pt(210, 460)))
 
 	content.SetFont(fontKai) // 设置字体样式
-	// 设置字体大小
 	content.SetFontSize(32)
-	// 设置字体颜色
 	content.SetSrc(image.Black)
 	berrors.Unwrap(content.DrawString("黑哥TV DOTA分部", freetype.Pt(650, 550)))
 	berrors.Unwrap(content.DrawString("二零二二年九月", freetype.Pt(650, 590)))
-	saveFile(newTemplateImage)
+	return saveFile(newTemplateImage)
 }
 
-func saveFile(pic *image.RGBA) {
-	dstFile, err := os.Create("bin/2.png")
+func saveFile(pic *image.RGBA) (string, error) {
+	dstFile, err := os.CreateTemp("", "honor.*.png")
 	if err != nil {
-		fmt.Println(err)
+		return "", err
 	}
 	defer dstFile.Close()
-	png.Encode(dstFile, pic)
+	err = png.Encode(dstFile, pic)
+	if err != nil {
+		return "", err
+	}
+	return dstFile.Name(), nil
 }
 
-func loadFont(path string) (font *truetype.Font, err error) {
-	fontBytes, err := os.ReadFile(path) // 读取字体文件
+func loadFont() (font *truetype.Font, err error) {
+	fontPath, err := findfont.Find("simkai.ttf")
 	if err != nil {
-		err = fmt.Errorf("加载字体文件出错:%s", err.Error())
+		err = fmt.Errorf("寻找字体文件出错: %s", err.Error())
 		return
 	}
-	font, err = freetype.ParseFont(fontBytes) // 解析字体文件
+	fontBytes, err := os.ReadFile(fontPath)
 	if err != nil {
-		err = fmt.Errorf("解析字体文件出错,%s", err.Error())
+		err = fmt.Errorf("加载字体文件出错: %s", err.Error())
+		return
+	}
+	font, err = freetype.ParseFont(fontBytes)
+	if err != nil {
+		err = fmt.Errorf("解析字体文件出错: %s", err.Error())
 		return
 	}
 	return
