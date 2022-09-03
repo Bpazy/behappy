@@ -8,7 +8,7 @@ import (
 
 func main() {
 	year, week := time.Now().ISOWeek()
-	path, err := images.Test("南帅", year, week, 23)
+	path, err := images.HonorTemplate("南帅", year, week, 23)
 	if err != nil {
 		panic(err)
 	}

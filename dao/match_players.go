@@ -1,8 +1,10 @@
 package dao
 
 import (
+	"fmt"
 	"github.com/Bpazy/behappy/models"
 	"github.com/sirupsen/logrus"
+	"time"
 )
 
 func GetMatchPlayer(matchID int64, playerID string) *models.MatchPlayer {
@@ -30,6 +32,24 @@ func ListRecentMatchPlayers(playerID string) []*models.MatchPlayer {
 		return mp
 	}
 	return mp
+}
+
+type PlayerMatchCount struct {
+	PlayerID string
+	Count    int64
+}
+
+func GetMatchesCount(playerIDList []string) (result []PlayerMatchCount) {
+	tomorrow := time.Now().Add(24 * time.Hour).Format("2006-01-02")
+	tx := db.Model(&models.MatchPlayer{}).
+		Select("player_id, count(*)").
+		Where("player_id in ? AND start_time >= ?", playerIDList, tomorrow).
+		Group("player_id").
+		Find(&result)
+	if tx.Error != nil {
+		panic(fmt.Errorf("查询最近场次失败: %+v", tx.Error))
+	}
+	return result
 }
 
 func SaveMatchPlayer(mp *models.MatchPlayer) {

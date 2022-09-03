@@ -17,7 +17,7 @@ import (
 //go:embed assets/*
 var f embed.FS
 
-func Test(name string, year int, week int, times int) (string, error) {
+func HonorTemplate(name string, year int, week int, times int) (string, error) {
 	templateFile, err := f.Open("assets/honor.png")
 	if err != nil {
 		panic(err)
