@@ -60,9 +60,6 @@ func Run() {
 
 	startOpenDota()
 
-	// TODO remove me
-	mirai.NewMessageSender().SendGroupImageMessage(1044740132, "C:\\workspace\\github.com\\bpazy\\behappy\\bin\\2.png")
-
 	mirai.ServeMirai()
 }
 

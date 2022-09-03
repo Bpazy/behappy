@@ -7,21 +7,22 @@ import (
 )
 
 type AllSubscribeCommand struct {
+	command.DefaultCommander
 }
 
 func (s *AllSubscribeCommand) Keyword() string {
 	return "查询订阅"
 }
 
-func (s *AllSubscribeCommand) Run(event interface{}, _ string) (result string) {
+func (s *AllSubscribeCommand) Run(event interface{}, arg string) (msgType command.MsgType, result string) {
 	subscribePlayers := dao.ListSubPlayersByGroupId(event.(*Event).Sender.Group.ID)
 	if len(subscribePlayers) == 0 {
-		return "还没有订阅"
+		return command.TYPE_TEXT, "还没有订阅"
 	}
 	for _, player := range subscribePlayers {
 		result = result + fmt.Sprintf("* %s (%s)", player.PlayerID, player.Alias)
 	}
-	return
+	return command.TYPE_TEXT, result
 }
 
 func (s *AllSubscribeCommand) Example() string {

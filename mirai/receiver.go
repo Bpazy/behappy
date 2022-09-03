@@ -52,7 +52,13 @@ func handleMessage(e *Event) {
 			}
 			anyMatch = true
 			args := strings.TrimLeft(content, prefix+"/")
-			NewMessageSender().SendGroupMessage(e.Sender.Group.ID, cmd.Run(e, args))
+			mt, ret := cmd.Run(e, args)
+			if mt == command.TYPE_TEXT && ret != "" {
+				NewMessageSender().SendGroupMessage(e.Sender.Group.ID, ret)
+			}
+			if mt == command.TYPE_IMAGE && ret != "" {
+				NewMessageSender().SendGroupImageMessage(e.Sender.Group.ID, ret)
+			}
 		}
 		if !anyMatch {
 			NewMessageSender().SendGroupMessage(e.Sender.Group.ID, command.Commanders.GetHelpMessage())
