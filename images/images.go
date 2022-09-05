@@ -74,7 +74,7 @@ func saveFile(pic *image.RGBA) (string, error) {
 }
 
 func loadFont() (font *truetype.Font, err error) {
-	fontPath, err := findfont.Find("simkai.ttf")
+	fontPath, err := findfont.Find("Arial.ttf")
 	if err != nil {
 		err = fmt.Errorf("寻找字体文件出错: %s", err.Error())
 		return
