@@ -43,7 +43,7 @@ func GetMatchesCount(playerIds []string) (result []PlayerMatchCount) {
 	lastWeek := time.Now().Add(24 * time.Hour).Add(-24 * 7 * time.Hour).Format("2006-01-02")
 	tx := db.Model(&models.MatchPlayer{}).
 		Select("player_id, count(*) as count").
-		Where("player_id in ? AND start_time >= ?", playerIds, lastWeek).
+		Where("player_id in ? AND created_at >= ?", playerIds, lastWeek).
 		Group("player_id").
 		Find(&result)
 	if tx.Error != nil {
