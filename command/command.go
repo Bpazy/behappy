@@ -22,16 +22,18 @@ type Commander interface {
 type DefaultCommander struct {
 }
 
+const implementMe = "implement me"
+
 func (d *DefaultCommander) Keyword() string {
-	panic("implement me")
+	panic(implementMe)
 }
 
 func (d *DefaultCommander) Run(event interface{}, arg string) (MsgType, string) {
-	panic("implement me")
+	panic(implementMe)
 }
 
 func (d *DefaultCommander) Example() string {
-	panic("implement me")
+	panic(implementMe)
 }
 
 func (d *DefaultCommander) Hidden() bool {

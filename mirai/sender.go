@@ -33,6 +33,8 @@ func (ms *MessageSender) GetMiraiBindUrl() string {
 	return ms.MiraiBaseUrl + "/bind"
 }
 
+const sendGroupMessageErrTemplate = "发送群消息失败: %+v"
+
 func (ms *MessageSender) SendGroupMessage(target int, text string) {
 	session, err := ms.Auth()
 	if err != nil {
@@ -45,12 +47,12 @@ func (ms *MessageSender) SendGroupMessage(target int, text string) {
 	response := SendMessageResponse{}
 	b, err := http.PostJson(ms.GetMiraiSendGroupMessageUrl(), NewSendMessage(ms.Session, target, text))
 	if err != nil {
-		logrus.Printf("发送群消息失败: %+v", err)
+		logrus.Printf(sendGroupMessageErrTemplate, err)
 		return
 	}
 	bjson.MustJsonUnmarshal(b, &response)
 	if response.Code != 0 {
-		logrus.Printf("发送消息失败: %+v", response)
+		logrus.Printf(sendGroupMessageErrTemplate, response)
 	}
 }
 
@@ -64,7 +66,7 @@ func (ms *MessageSender) SendGroupImageMessage(target int, path string) {
 	defer ms.Release()
 	b, err := http.PostJson(ms.GetMiraiSendGroupMessageUrl(), NewSendImageMessage(ms.Session, target, path))
 	if err != nil {
-		logrus.Printf("发送群消息失败: %+v", err)
+		logrus.Printf(sendGroupMessageErrTemplate, err)
 		return
 	}
 	response := SendMessageResponse{}

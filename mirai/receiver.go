@@ -40,29 +40,32 @@ func receiveMessage() func(c *gin.Context) {
 
 func handleMessage(e *Event) {
 	if e.IsGroupMessage() {
-		if !e.MessageChain.IsAtMe() {
-			return
+		dispatchGroupMessage(e)
+	}
+}
+
+func dispatchGroupMessage(e *Event) {
+	if !e.MessageChain.IsAtMe() {
+		return
+	}
+	content := strings.TrimSpace(e.MessageChain.PlainText())
+	anyMatch := false
+	for _, cmd := range command.Commanders.RegisteredCommanders {
+		prefix := cmd.Keyword()
+		if !strings.HasPrefix(content, prefix) {
+			continue
 		}
-		content := strings.TrimSpace(e.MessageChain.PlainText())
-		anyMatch := false
-		for _, cmd := range command.Commanders.RegisteredCommanders {
-			prefix := cmd.Keyword()
-			if !strings.HasPrefix(content, prefix) {
-				continue
-			}
-			anyMatch = true
-			args := strings.TrimLeft(content, prefix+"/")
-			mt, ret := cmd.Run(e, args)
-			if mt == command.TypeText && ret != "" {
-				NewMessageSender().SendGroupMessage(e.Sender.Group.ID, ret)
-			}
-			if mt == command.TypeImage && ret != "" {
-				NewMessageSender().SendGroupImageMessage(e.Sender.Group.ID, ret)
-			}
+		anyMatch = true
+		mt, ret := cmd.Run(e, strings.TrimLeft(content, prefix+"/"))
+		if mt == command.TypeText && ret != "" {
+			NewMessageSender().SendGroupMessage(e.Sender.Group.ID, ret)
 		}
-		if !anyMatch {
-			NewMessageSender().SendGroupMessage(e.Sender.Group.ID, command.Commanders.GetHelpMessage())
+		if mt == command.TypeImage && ret != "" {
+			NewMessageSender().SendGroupImageMessage(e.Sender.Group.ID, ret)
 		}
+	}
+	if !anyMatch {
+		NewMessageSender().SendGroupMessage(e.Sender.Group.ID, command.Commanders.GetHelpMessage())
 	}
 }
 
@@ -125,6 +128,7 @@ func (e Event) IsGroupMessage() bool {
 }
 
 func (e Event) IsFriendMessage() bool {
+	// FIXME 类型错误
 	return e.Type == "GroupMessage"
 }
 
