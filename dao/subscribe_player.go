@@ -41,7 +41,7 @@ func ListSubPlayersByGroupId(groupID int) []models.SubscribePlayer {
 
 func ListAllGroupIds() []int {
 	var groupIds []int
-	if err := db.Model(&models.SubscribePlayer{}).Distinct().Pluck("group_id", &groupIds); err != nil {
+	if err := db.Model(&models.SubscribePlayer{}).Distinct().Pluck("group_id", &groupIds).Error; err != nil {
 		panic(fmt.Errorf("查询所有 group_id 列表失败: %+v", err))
 	}
 	return groupIds
