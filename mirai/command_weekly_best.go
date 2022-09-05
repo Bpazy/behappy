@@ -2,10 +2,6 @@ package mirai
 
 import (
 	"github.com/Bpazy/behappy/command"
-	"github.com/Bpazy/behappy/dao"
-	"github.com/Bpazy/behappy/images"
-	"github.com/sirupsen/logrus"
-	"time"
 )
 
 type WeeklyBestCommand struct {
@@ -17,15 +13,8 @@ func (s *WeeklyBestCommand) Keyword() string {
 }
 
 func (s *WeeklyBestCommand) Run(event interface{}, arg string) (msgType command.MsgType, result string) {
-	dao.ListSubPlayersByGroupId()
-
-	year, week := time.Now().ISOWeek()
-	path, err := images.HonorTemplate("南帅", year, week, 23)
-	if err != nil {
-		panic(err)
-	}
-	logrus.Infof("生成的图像路径: %s", path)
-	return command.TYPE_IMAGE, path
+	groupId := event.(*Event).Sender.Group.ID
+	return command.TypeImage, GenerateWeeklyBestImage(groupId)
 }
 
 func (s *WeeklyBestCommand) Example() string {

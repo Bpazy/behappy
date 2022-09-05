@@ -17,12 +17,12 @@ func (s *AllSubscribeCommand) Keyword() string {
 func (s *AllSubscribeCommand) Run(event interface{}, arg string) (msgType command.MsgType, result string) {
 	subscribePlayers := dao.ListSubPlayersByGroupId(event.(*Event).Sender.Group.ID)
 	if len(subscribePlayers) == 0 {
-		return command.TYPE_TEXT, "还没有订阅"
+		return command.TypeText, "还没有订阅"
 	}
 	for _, player := range subscribePlayers {
 		result = result + fmt.Sprintf("* %s (%s)", player.PlayerID, player.Alias)
 	}
-	return command.TYPE_TEXT, result
+	return command.TypeText, result
 }
 
 func (s *AllSubscribeCommand) Example() string {

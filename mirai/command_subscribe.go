@@ -19,12 +19,12 @@ func (s *SubscribeCommand) Keyword() string {
 func (s *SubscribeCommand) Run(event interface{}, arg string) (command.MsgType, string) {
 	split := strings.Split(arg, "/")
 	if len(split) < 2 {
-		return command.TYPE_TEXT, ""
+		return command.TypeText, ""
 	}
 	steamID := split[0]
 	alias := split[1]
 
-	return command.TYPE_TEXT, s.saveOrUpdateSubscribe(event.(*Event), steamID, alias)
+	return command.TypeText, s.saveOrUpdateSubscribe(event.(*Event), steamID, alias)
 }
 
 func (s *SubscribeCommand) saveOrUpdateSubscribe(event *Event, steamID string, alias string) string {

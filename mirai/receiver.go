@@ -53,10 +53,10 @@ func handleMessage(e *Event) {
 			anyMatch = true
 			args := strings.TrimLeft(content, prefix+"/")
 			mt, ret := cmd.Run(e, args)
-			if mt == command.TYPE_TEXT && ret != "" {
+			if mt == command.TypeText && ret != "" {
 				NewMessageSender().SendGroupMessage(e.Sender.Group.ID, ret)
 			}
-			if mt == command.TYPE_IMAGE && ret != "" {
+			if mt == command.TypeImage && ret != "" {
 				NewMessageSender().SendGroupImageMessage(e.Sender.Group.ID, ret)
 			}
 		}

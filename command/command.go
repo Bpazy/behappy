@@ -7,8 +7,9 @@ import (
 type MsgType int32
 
 const (
-	TYPE_IMAGE MsgType = iota
-	TYPE_TEXT  MsgType = iota
+	TypeImage MsgType = iota
+	TypeText  MsgType = iota
+	TypeNil   MsgType = iota
 )
 
 type Commander interface {

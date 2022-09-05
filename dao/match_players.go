@@ -39,11 +39,11 @@ type PlayerMatchCount struct {
 	Count    int64
 }
 
-func GetMatchesCount(playerIDList []string) (result []PlayerMatchCount) {
-	tomorrow := time.Now().Add(24 * time.Hour).Format("2006-01-02")
+func GetMatchesCount(playerIds []string) (result []PlayerMatchCount) {
+	lastWeek := time.Now().Add(24 * time.Hour).Add(-24 * 7 * time.Hour).Format("2006-01-02")
 	tx := db.Model(&models.MatchPlayer{}).
-		Select("player_id, count(*)").
-		Where("player_id in ? AND start_time >= ?", playerIDList, tomorrow).
+		Select("player_id, count(*) as count").
+		Where("player_id in ? AND start_time >= ?", playerIds, lastWeek).
 		Group("player_id").
 		Find(&result)
 	if tx.Error != nil {

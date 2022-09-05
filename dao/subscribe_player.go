@@ -1,6 +1,7 @@
 package dao
 
 import (
+	"fmt"
 	"github.com/Bpazy/behappy/models"
 	"github.com/sirupsen/logrus"
 )
@@ -36,6 +37,14 @@ func ListSubPlayersByGroupId(groupID int) []models.SubscribePlayer {
 		logrus.Errorf("查询数据出错: %+v", err)
 	}
 	return result
+}
+
+func ListAllGroupIds() []int {
+	var groupIds []int
+	if err := db.Model(&models.SubscribePlayer{}).Distinct().Pluck("group_id", &groupIds); err != nil {
+		panic(fmt.Errorf("查询所有 group_id 列表失败: %+v", err))
+	}
+	return groupIds
 }
 
 func GetSubPlayer(groupID int, playerID string) *models.SubscribePlayer {

@@ -17,7 +17,7 @@ import (
 //go:embed assets/*
 var f embed.FS
 
-func HonorTemplate(name string, year int, week int, times int) (string, error) {
+func HonorTemplate(name string, year int, week int, month int, times int64) (string, error) {
 	templateFile, err := f.Open("assets/honor.png")
 	if err != nil {
 		panic(err)
@@ -55,8 +55,8 @@ func HonorTemplate(name string, year int, week int, times int) (string, error) {
 	content.SetFont(fontKai) // 设置字体样式
 	content.SetFontSize(32)
 	content.SetSrc(image.Black)
-	berrors.Unwrap(content.DrawString("黑哥TV DOTA分部", freetype.Pt(650, 550)))
-	berrors.Unwrap(content.DrawString("二零二二年九月", freetype.Pt(650, 590)))
+	berrors.Unwrap(content.DrawString("黑哥TV刀塔分部", freetype.Pt(650, 550)))
+	berrors.Unwrap(content.DrawString(fmt.Sprintf("%d年%d月", year, month), freetype.Pt(730, 590)))
 	return saveFile(newTemplateImage)
 }
 
