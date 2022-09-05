@@ -57,3 +57,7 @@ datasource:
 
 简单的执行 make 命令即可，编译的文件在 `bin` 目录下。
 如果只需要编译到 windows 平台，可以执行命令: `make windows-amd64`。更详细的用法，你可以直接查看根目录中 `Makefile` 文件。
+
+
+## 注意事项
+如果想要使用“最佳劳模”功能，需要在系统中安装 simkai.ttf 字体。
