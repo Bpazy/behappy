@@ -9,21 +9,22 @@ import (
 )
 
 type SubscribeCommand struct {
+	command.DefaultCommander
 }
 
 func (s *SubscribeCommand) Keyword() string {
 	return "订阅"
 }
 
-func (s *SubscribeCommand) Run(event interface{}, arg string) string {
+func (s *SubscribeCommand) Run(event interface{}, arg string) (command.MsgType, string) {
 	split := strings.Split(arg, "/")
 	if len(split) < 2 {
-		return ""
+		return command.TypeText, ""
 	}
 	steamID := split[0]
 	alias := split[1]
 
-	return s.saveOrUpdateSubscribe(event.(*Event), steamID, alias)
+	return command.TypeText, s.saveOrUpdateSubscribe(event.(*Event), steamID, alias)
 }
 
 func (s *SubscribeCommand) saveOrUpdateSubscribe(event *Event, steamID string, alias string) string {

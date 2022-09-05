@@ -40,23 +40,32 @@ func receiveMessage() func(c *gin.Context) {
 
 func handleMessage(e *Event) {
 	if e.IsGroupMessage() {
-		if !e.MessageChain.IsAtMe() {
-			return
+		dispatchGroupMessage(e)
+	}
+}
+
+func dispatchGroupMessage(e *Event) {
+	if !e.MessageChain.IsAtMe() {
+		return
+	}
+	content := strings.TrimSpace(e.MessageChain.PlainText())
+	anyMatch := false
+	for _, cmd := range command.Commanders.RegisteredCommanders {
+		prefix := cmd.Keyword()
+		if !strings.HasPrefix(content, prefix) {
+			continue
 		}
-		content := strings.TrimSpace(e.MessageChain.PlainText())
-		anyMatch := false
-		for _, cmd := range command.Commanders.RegisteredCommanders {
-			prefix := cmd.Keyword()
-			if !strings.HasPrefix(content, prefix) {
-				continue
-			}
-			anyMatch = true
-			args := strings.TrimLeft(content, prefix+"/")
-			NewMessageSender().SendGroupMessage(e.Sender.Group.ID, cmd.Run(e, args))
+		anyMatch = true
+		mt, ret := cmd.Run(e, strings.TrimLeft(content, prefix+"/"))
+		if mt == command.TypeText && ret != "" {
+			NewMessageSender().SendGroupMessage(e.Sender.Group.ID, ret)
 		}
-		if !anyMatch {
-			NewMessageSender().SendGroupMessage(e.Sender.Group.ID, command.Commanders.GetHelpMessage())
+		if mt == command.TypeImage && ret != "" {
+			NewMessageSender().SendGroupImageMessage(e.Sender.Group.ID, ret)
 		}
+	}
+	if !anyMatch {
+		NewMessageSender().SendGroupMessage(e.Sender.Group.ID, command.Commanders.GetHelpMessage())
 	}
 }
 
@@ -119,6 +128,7 @@ func (e Event) IsGroupMessage() bool {
 }
 
 func (e Event) IsFriendMessage() bool {
+	// FIXME 类型错误
 	return e.Type == "GroupMessage"
 }
 
@@ -180,6 +190,14 @@ func NewSendMessage(session string, target int, text string) *SendMessage {
 		SessionKey:   session,
 		Target:       target,
 		MessageChain: MessageChains{MessageChain{Type: "Plain", Text: text}},
+	}
+}
+
+func NewSendImageMessage(session string, target int, path string) *SendMessage {
+	return &SendMessage{
+		SessionKey:   session,
+		Target:       target,
+		MessageChain: MessageChains{MessageChain{Type: "Image", Path: path}},
 	}
 }
 

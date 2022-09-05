@@ -77,6 +77,15 @@ func startOpenDota() {
 	c.AddFunc("@every 5m", func() {
 		SubscribeFunc()
 	})
+	// 每周一早晨九点
+	c.AddFunc("0 0 9 * * 1", func() {
+		WeeklyBest()
+	})
 
 	c.Start()
+}
+
+func WeeklyBest() {
+	command := mirai.PlatformWeeklyBestCommand{}
+	command.JustGo()
 }
