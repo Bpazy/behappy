@@ -79,7 +79,7 @@ func startOpenDota() {
 	// 每五分钟
 	berrors.Must(c.AddFunc("@every 5m", func() { SubscribeFunc() }))
 	// 每周一早晨九点
-	berrors.Must(c.AddFunc("0 0 9 * * 1", func() { WeeklyBest() }))
+	//berrors.Must(c.AddFunc("0 0 9 * * 1", func() { WeeklyBest() }))
 
 	c.Start()
 }
