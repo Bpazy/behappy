@@ -1,9 +1,10 @@
-package mirai
+package command
 
 import (
 	"fmt"
 	"github.com/Bpazy/behappy/command"
 	"github.com/Bpazy/behappy/dao"
+	"github.com/Bpazy/behappy/mirai"
 	"github.com/Bpazy/behappy/models"
 	"strings"
 )
@@ -24,10 +25,10 @@ func (s *SubscribeCommand) Run(event interface{}, arg string) (command.MsgType, 
 	steamID := split[0]
 	alias := split[1]
 
-	return command.TypeText, s.saveOrUpdateSubscribe(event.(*Event), steamID, alias)
+	return command.TypeText, s.saveOrUpdateSubscribe(event.(*mirai.Event), steamID, alias)
 }
 
-func (s *SubscribeCommand) saveOrUpdateSubscribe(event *Event, steamID string, alias string) string {
+func (s *SubscribeCommand) saveOrUpdateSubscribe(event *mirai.Event, steamID string, alias string) string {
 	savedSP := dao.GetSubPlayer(event.Sender.Group.ID, steamID)
 	if savedSP == nil {
 		// 不存在

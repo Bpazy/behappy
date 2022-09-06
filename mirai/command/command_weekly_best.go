@@ -1,7 +1,8 @@
-package mirai
+package command
 
 import (
 	"github.com/Bpazy/behappy/command"
+	"github.com/Bpazy/behappy/mirai"
 )
 
 type WeeklyBestCommand struct {
@@ -12,9 +13,9 @@ func (s *WeeklyBestCommand) Keyword() string {
 	return "最佳劳模"
 }
 
-func (s *WeeklyBestCommand) Run(event interface{}, arg string) (msgType command.MsgType, result string) {
-	groupId := event.(*Event).Sender.Group.ID
-	return command.TypeImage, GenerateWeeklyBestImage(groupId)
+func (s *WeeklyBestCommand) Run(event interface{}, _ string) (msgType command.MsgType, result string) {
+	groupId := event.(*mirai.Event).Sender.Group.ID
+	return command.TypeImage, mirai.GenerateWeeklyBestImage(groupId)
 }
 
 func (s *WeeklyBestCommand) Example() string {

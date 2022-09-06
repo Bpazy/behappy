@@ -1,9 +1,11 @@
 package behappy
 
 import (
+	"github.com/Bpazy/behappy/berrors"
 	"github.com/Bpazy/behappy/config"
 	"github.com/Bpazy/behappy/dao"
 	"github.com/Bpazy/behappy/mirai"
+	"github.com/Bpazy/behappy/mirai/command"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/robfig/cron/v3"
 	"github.com/sirupsen/logrus"
@@ -74,18 +76,15 @@ func startOpenDota() {
 	c := cron.New(cron.WithChain(
 		cron.Recover(cron.DefaultLogger), // or use cron.DefaultLogger
 	))
-	c.AddFunc("@every 5m", func() {
-		SubscribeFunc()
-	})
+	// 每五分钟
+	berrors.Must(c.AddFunc("@every 5m", func() { SubscribeFunc() }))
 	// 每周一早晨九点
-	c.AddFunc("0 0 9 * * 1", func() {
-		WeeklyBest()
-	})
+	berrors.Must(c.AddFunc("0 0 9 * * 1", func() { WeeklyBest() }))
 
 	c.Start()
 }
 
 func WeeklyBest() {
-	command := mirai.PlatformWeeklyBestCommand{}
-	command.JustGo()
+	c := command.PlatformWeeklyBestCommand{}
+	c.JustGo()
 }
