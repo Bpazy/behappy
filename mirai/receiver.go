@@ -128,8 +128,7 @@ func (e Event) IsGroupMessage() bool {
 }
 
 func (e Event) IsFriendMessage() bool {
-	// FIXME 类型错误
-	return e.Type == "GroupMessage"
+	return e.Type == "FriendMessage"
 }
 
 func (e Event) isEvent() bool {
