@@ -22,6 +22,13 @@ var (
 		Name:       "heros",
 		Columns:    HerosColumns,
 		PrimaryKey: []*schema.Column{HerosColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "hero_hero_id",
+				Unique:  false,
+				Columns: []*schema.Column{HerosColumns[3]},
+			},
+		},
 	}
 	// SubscriptionsColumns holds the columns for the "subscriptions" table.
 	SubscriptionsColumns = []*schema.Column{
