@@ -37,6 +37,18 @@ var (
 		Name:       "subscriptions",
 		Columns:    SubscriptionsColumns,
 		PrimaryKey: []*schema.Column{SubscriptionsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "subscription_group_id",
+				Unique:  false,
+				Columns: []*schema.Column{SubscriptionsColumns[3]},
+			},
+			{
+				Name:    "subscription_steam_id",
+				Unique:  false,
+				Columns: []*schema.Column{SubscriptionsColumns[4]},
+			},
+		},
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
