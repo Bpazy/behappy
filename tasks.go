@@ -5,9 +5,9 @@ import (
 	"github.com/Bpazy/behappy/bjson"
 	"github.com/Bpazy/behappy/config"
 	"github.com/Bpazy/behappy/dao"
+	"github.com/Bpazy/behappy/dto"
 	"github.com/Bpazy/behappy/http"
 	"github.com/Bpazy/behappy/mirai"
-	"github.com/Bpazy/behappy/models"
 	"github.com/Bpazy/behappy/opendota"
 	"github.com/Bpazy/behappy/templates"
 	"github.com/Bpazy/behappy/util"
@@ -34,7 +34,7 @@ func InitHeros() {
 	logrus.Info("初始化英雄数据")
 	b := http.Get(fmt.Sprintf("http://api.steampowered.com/IEconDOTA2_570/GetHeroes/v0001?key=%s&language=zh", config.GetConfig().SteamAPI.Key))
 
-	var steamApiResult models.SteamApiResult
+	var steamApiResult dto.SteamApiResult
 	bjson.MustJsonUnmarshal(b, &steamApiResult)
 	dao.AddHeros(steamApiResult.Result.Heroes)
 }
@@ -54,7 +54,7 @@ func SubscribeFunc() {
 	}
 }
 
-func buildMessage(matchPlayers []*models.MatchPlayer, groupID int, playerID2Name map[string]string) string {
+func buildMessage(matchPlayers []*dto.MatchPlayer, groupID int, playerID2Name map[string]string) string {
 	if len(matchPlayers) == 1 {
 		return getSinglePlayerMessage(matchPlayers, groupID)
 	} else {
@@ -62,9 +62,9 @@ func buildMessage(matchPlayers []*models.MatchPlayer, groupID int, playerID2Name
 	}
 }
 
-func getSinglePlayerMessage(matchPlayers []*models.MatchPlayer, groupID int) string {
+func getSinglePlayerMessage(matchPlayers []*dto.MatchPlayer, groupID int) string {
 	mp := matchPlayers[0]
-	sp := dao.GetSubPlayer(groupID, mp.PlayerID)
+	sp := dao.GetSubscriptionDto(groupID, mp.PlayerID)
 
 	winTimes, loseTimes := GetWinOrLoseTimesInRow(sp.PlayerID)
 	data := map[string]interface{}{
@@ -88,7 +88,7 @@ func getSinglePlayerMessage(matchPlayers []*models.MatchPlayer, groupID int) str
 	return m
 }
 
-func getMultiPlayersMessage(matchPlayers []*models.MatchPlayer, groupID int, playerID2Name map[string]string) string {
+func getMultiPlayersMessage(matchPlayers []*dto.MatchPlayer, groupID int, playerID2Name map[string]string) string {
 	mp := matchPlayers[0]
 	pretty := joinKda(matchPlayers, groupID)
 	if mp.IsWin() {
@@ -99,18 +99,18 @@ func getMultiPlayersMessage(matchPlayers []*models.MatchPlayer, groupID int, pla
 	}
 }
 
-func joinKda(matchPlayers []*models.MatchPlayer, groupID int) string {
+func joinKda(matchPlayers []*dto.MatchPlayer, groupID int) string {
 	pretty := ""
 	for _, mp := range matchPlayers {
-		sp := dao.GetSubPlayer(groupID, mp.PlayerID)
+		sp := dao.GetSubscriptionDto(groupID, mp.PlayerID)
 		kda := util.GetKda(mp.Kills, mp.Deaths, mp.Assists)
 		pretty += fmt.Sprintf("%s玩%s KDA: %s (%d, %d, %d)\n", sp.Name(), dao.GetHeroName(mp.HeroID), kda, mp.Kills, mp.Deaths, mp.Assists)
 	}
 	return pretty[:len(pretty)-1]
 }
 
-func appendRidicule(matchPlayers []*models.MatchPlayer, playerID2Name map[string]string) string {
-	maxLoseMp := new(models.MatchPlayer)
+func appendRidicule(matchPlayers []*dto.MatchPlayer, playerID2Name map[string]string) string {
+	maxLoseMp := new(dto.MatchPlayer)
 	maxLoseTimes := 0
 	for _, mp := range matchPlayers {
 		_, loseTimes := GetWinOrLoseTimesInRow(mp.PlayerID)
@@ -125,16 +125,16 @@ func appendRidicule(matchPlayers []*models.MatchPlayer, playerID2Name map[string
 	return ""
 }
 
-func getNewMatchPlayersByMatchId(subNewMatchPlayers []*models.MatchPlayer) map[int64][]*models.MatchPlayer {
-	result := map[int64][]*models.MatchPlayer{}
+func getNewMatchPlayersByMatchId(subNewMatchPlayers []*dto.MatchPlayer) map[int64][]*dto.MatchPlayer {
+	result := map[int64][]*dto.MatchPlayer{}
 	for _, mp := range subNewMatchPlayers {
 		result[mp.MatchID] = append(result[mp.MatchID], mp)
 	}
 	return result
 }
 
-func getNewMatchPlayersByGroupId(newMatchPlayers []*models.MatchPlayer) map[int][]*models.MatchPlayer {
-	result := map[int][]*models.MatchPlayer{}
+func getNewMatchPlayersByGroupId(newMatchPlayers []*dto.MatchPlayer) map[int][]*dto.MatchPlayer {
+	result := map[int][]*dto.MatchPlayer{}
 	for _, mp := range newMatchPlayers {
 		// 待通知的订阅群组
 		allSub := dao.ListSubPlayersByPlayerId(mp.PlayerID)
@@ -146,7 +146,7 @@ func getNewMatchPlayersByGroupId(newMatchPlayers []*models.MatchPlayer) map[int]
 	return result
 }
 
-func detectAndSaveNewMatches(playerIDs []string) (result []*models.MatchPlayer) {
+func detectAndSaveNewMatches(playerIDs []string) (result []*dto.MatchPlayer) {
 	for _, pid := range playerIDs {
 		matchPlayers := opendota.GetMatchPlayers(pid)
 		for _, mp := range matchPlayers {
@@ -188,7 +188,7 @@ func GetWinOrLoseTimesInRow(playerID string) (winTimes, loseTimes int) {
 	return
 }
 
-func joinChineseWords(matchPlayers []*models.MatchPlayer, playerID2Name map[string]string) string {
+func joinChineseWords(matchPlayers []*dto.MatchPlayer, playerID2Name map[string]string) string {
 	var names []string
 	for _, mp := range matchPlayers[:len(matchPlayers)-1] {
 		names = append(names, playerID2Name[mp.PlayerID])

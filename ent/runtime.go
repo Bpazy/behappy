@@ -7,6 +7,7 @@ import (
 
 	"github.com/Bpazy/behappy/ent/hero"
 	"github.com/Bpazy/behappy/ent/schema"
+	"github.com/Bpazy/behappy/ent/subscription"
 )
 
 // The init function reads all schema descriptors with runtime code
@@ -28,4 +29,19 @@ func init() {
 	hero.DefaultUpdateTime = heroDescUpdateTime.Default.(func() time.Time)
 	// hero.UpdateDefaultUpdateTime holds the default value on update for the update_time field.
 	hero.UpdateDefaultUpdateTime = heroDescUpdateTime.UpdateDefault.(func() time.Time)
+	subscriptionMixin := schema.Subscription{}.Mixin()
+	subscriptionMixinFields0 := subscriptionMixin[0].Fields()
+	_ = subscriptionMixinFields0
+	subscriptionFields := schema.Subscription{}.Fields()
+	_ = subscriptionFields
+	// subscriptionDescCreateTime is the schema descriptor for create_time field.
+	subscriptionDescCreateTime := subscriptionMixinFields0[0].Descriptor()
+	// subscription.DefaultCreateTime holds the default value on creation for the create_time field.
+	subscription.DefaultCreateTime = subscriptionDescCreateTime.Default.(func() time.Time)
+	// subscriptionDescUpdateTime is the schema descriptor for update_time field.
+	subscriptionDescUpdateTime := subscriptionMixinFields0[1].Descriptor()
+	// subscription.DefaultUpdateTime holds the default value on creation for the update_time field.
+	subscription.DefaultUpdateTime = subscriptionDescUpdateTime.Default.(func() time.Time)
+	// subscription.UpdateDefaultUpdateTime holds the default value on update for the update_time field.
+	subscription.UpdateDefaultUpdateTime = subscriptionDescUpdateTime.UpdateDefault.(func() time.Time)
 }

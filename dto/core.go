@@ -1,4 +1,4 @@
-package models
+package dto
 
 import (
 	"gorm.io/gorm"
@@ -48,14 +48,13 @@ func (m MatchPlayer) DurationMinutes() int {
 	return m.Duration / 60
 }
 
-type SubscribePlayer struct {
-	GroupID  int    `gorm:"index; not null"` // 群ID
-	PlayerID string `gorm:"index; not null"` // 玩家ID
-	Alias    string `gorm:"not null"`        // 别名
-	gorm.Model
+type SubscriptionDto struct {
+	GroupID  int
+	PlayerID string
+	Alias    string
 }
 
-func (sp SubscribePlayer) Name() string {
+func (sp SubscriptionDto) Name() string {
 	if sp.Alias != "" {
 		return sp.Alias
 	}

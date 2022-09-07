@@ -4,8 +4,8 @@ import (
 	"context"
 	"github.com/Bpazy/behappy/berrors"
 	"github.com/Bpazy/behappy/config"
+	"github.com/Bpazy/behappy/dto"
 	"github.com/Bpazy/behappy/ent"
-	"github.com/Bpazy/behappy/models"
 	"github.com/sirupsen/logrus"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -21,8 +21,7 @@ func InitDB() {
 	initEnt()
 
 	berrors.Must(db.AutoMigrate(
-		&models.MatchPlayer{},
-		&models.SubscribePlayer{},
+		&dto.MatchPlayer{},
 	))
 
 	if err := client.Schema.Create(context.Background()); err != nil {

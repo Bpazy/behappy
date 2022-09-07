@@ -1,27 +1,27 @@
 package behappy
 
 import (
-	"github.com/Bpazy/behappy/models"
+	"github.com/Bpazy/behappy/dto"
 	"reflect"
 	"testing"
 )
 
 func Test_getNewMatchPlayersByMatchId(t *testing.T) {
 	type args struct {
-		subNewMatchPlayers []*models.MatchPlayer
+		subNewMatchPlayers []*dto.MatchPlayer
 	}
 	tests := []struct {
 		name       string
 		args       args
-		wantResult map[int64][]*models.MatchPlayer
+		wantResult map[int64][]*dto.MatchPlayer
 	}{
-		{name: "tmp", args: struct{ subNewMatchPlayers []*models.MatchPlayer }{
-			[]*models.MatchPlayer{
+		{name: "tmp", args: struct{ subNewMatchPlayers []*dto.MatchPlayer }{
+			[]*dto.MatchPlayer{
 				{MatchID: 1, PlayerID: "1"},
 				{MatchID: 1, PlayerID: "2"},
 				{MatchID: 2, PlayerID: "2"},
 			},
-		}, wantResult: map[int64][]*models.MatchPlayer{
+		}, wantResult: map[int64][]*dto.MatchPlayer{
 			1: {{MatchID: 1, PlayerID: "1"}, {MatchID: 1, PlayerID: "2"}},
 			2: {{MatchID: 2, PlayerID: "2"}},
 		}},

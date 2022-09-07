@@ -5,7 +5,6 @@ import (
 	"github.com/Bpazy/behappy/command"
 	"github.com/Bpazy/behappy/dao"
 	"github.com/Bpazy/behappy/mirai"
-	"github.com/Bpazy/behappy/models"
 	"strings"
 )
 
@@ -29,21 +28,17 @@ func (s *SubscribeCommand) Run(event interface{}, arg string) (command.MsgType, 
 }
 
 func (s *SubscribeCommand) saveOrUpdateSubscribe(event *mirai.Event, steamID string, alias string) string {
-	savedSP := dao.GetSubPlayer(event.Sender.Group.ID, steamID)
-	if savedSP == nil {
+	subscription := dao.GetSubscription(event.Sender.Group.ID, steamID)
+	if subscription == nil {
 		// 不存在
-		dao.SaveSubPlayer(&models.SubscribePlayer{
-			GroupID:  event.Sender.Group.ID,
-			PlayerID: steamID,
-			Alias:    alias,
-		})
+		dao.SaveSubPlayer(event.Sender.Group.ID, steamID, alias)
 		return "订阅成功"
 	} else {
 		// 存在则更新
-		oldAlias := savedSP.Alias
-		savedSP.Alias = alias
-		dao.UpdateSubPlayer(savedSP)
-		return fmt.Sprintf("%s 更新了订阅: [%s] 被变更为 [%s]", event.Sender.MemberName, oldAlias, savedSP.Alias)
+		oldAlias := subscription.Alias
+		subscription.Alias = alias
+		dao.UpdateSubPlayer(subscription)
+		return fmt.Sprintf("%s 更新了订阅: [%s] 被变更为 [%s]", event.Sender.MemberName, oldAlias, subscription.Alias)
 	}
 }
 

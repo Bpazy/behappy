@@ -14,6 +14,8 @@ type Tx struct {
 	config
 	// Hero is the client for interacting with the Hero builders.
 	Hero *HeroClient
+	// Subscription is the client for interacting with the Subscription builders.
+	Subscription *SubscriptionClient
 
 	// lazily loaded.
 	client     *Client
@@ -150,6 +152,7 @@ func (tx *Tx) Client() *Client {
 
 func (tx *Tx) init() {
 	tx.Hero = NewHeroClient(tx.config)
+	tx.Subscription = NewSubscriptionClient(tx.config)
 }
 
 // txDriver wraps the given dialect.Tx with a nop dialect.Driver implementation.

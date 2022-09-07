@@ -26,7 +26,7 @@ func GenerateWeeklyBestImage(groupId int) string {
 
 	lastWeek := time.Now().Add(-24 * 7 * time.Hour)
 	year, week := lastWeek.ISOWeek()
-	player := dao.GetSubPlayer(groupId, max.PlayerID)
+	player := dao.GetSubscriptionDto(groupId, max.PlayerID)
 	path, err := images.HonorTemplate(player.Name(), year, week, int(lastWeek.Month()), max.Count)
 	if err != nil {
 		panic(fmt.Errorf("生成图像失败: %+v", err))

@@ -1,81 +1,98 @@
 package dao
 
 import (
-	"fmt"
-	"github.com/Bpazy/behappy/models"
-	"github.com/sirupsen/logrus"
+	"context"
+	"github.com/Bpazy/behappy/dto"
+	"github.com/Bpazy/behappy/ent"
+	"github.com/Bpazy/behappy/ent/subscription"
 )
 
 func ListAllPlayerIDs() (pids []string) {
-	var sps []models.SubscribePlayer
-	db.Distinct("player_id").Find(&sps)
-	if len(sps) == 0 {
-		logrus.Infof("没有订阅的玩家")
-	}
-
-	for _, sp := range sps {
-		pids = append(pids, sp.PlayerID)
-	}
-	return pids
+	return client.Subscription.
+		Query().
+		Unique(true).
+		Select(subscription.FieldSteamID).
+		StringsX(context.TODO())
 }
 
-func ListSubPlayersByPlayerId(playerID string) []models.SubscribePlayer {
-	var allSub []models.SubscribePlayer
-	if err := db.Where("player_id = ?", playerID).Find(&allSub).Error; err != nil {
-		logrus.Info("没有订阅的玩家")
-		return []models.SubscribePlayer{}
-	}
-	return allSub
+func ListSubPlayersByPlayerId(playerID string) []dto.SubscriptionDto {
+	//var allSub []models.SubscriptionDto
+	//if err := db.Where("player_id = ?", playerID).Find(&allSub).Error; err != nil {
+	//	logrus.Info("没有订阅的玩家")
+	//	return []models.SubscriptionDto{}
+	//}
+	//return allSub
+	return convert(client.Subscription.
+		Query().
+		Where(subscription.SteamID(playerID)).
+		AllX(context.TODO()))
 }
 
-func ListSubPlayersByGroupId(groupID int) []models.SubscribePlayer {
-	query := &models.SubscribePlayer{
-		GroupID: groupID,
-	}
-	var result []models.SubscribePlayer
-	if err := db.Where(query).Take(&result).Error; err != nil {
-		logrus.Errorf("查询数据出错: %+v", err)
+func ListSubPlayersByGroupId(groupID int) []dto.SubscriptionDto {
+	return convert(client.Subscription.
+		Query().
+		Where(subscription.GroupID(groupID)).
+		AllX(context.TODO()))
+}
+
+func convert(subscriptions []*ent.Subscription) []dto.SubscriptionDto {
+	result := make([]dto.SubscriptionDto, len(subscriptions))
+	for i, s := range subscriptions {
+		result[i] = dto.SubscriptionDto{
+			GroupID:  s.GroupID,
+			PlayerID: s.SteamID,
+			Alias:    s.Alias,
+		}
 	}
 	return result
 }
 
 func ListAllGroupIds() []int {
-	var groupIds []int
-	if err := db.Model(&models.SubscribePlayer{}).Distinct().Pluck("group_id", &groupIds).Error; err != nil {
-		panic(fmt.Errorf("查询所有 group_id 列表失败: %+v", err))
-	}
-	return groupIds
+	return client.Subscription.
+		Query().
+		Unique(true).
+		Select(subscription.FieldGroupID).
+		IntsX(context.TODO())
 }
 
-func GetSubPlayer(groupID int, playerID string) *models.SubscribePlayer {
-	query := &models.SubscribePlayer{
-		GroupID:  groupID,
-		PlayerID: playerID,
-	}
-	savedSP := models.SubscribePlayer{}
-	if err := db.Where(query).First(&savedSP).Error; err != nil {
-		return nil
-	}
-	return &savedSP
+func GetSubscription(groupID int, playerID string) *ent.Subscription {
+	return client.Subscription.
+		Query().
+		Where(
+			subscription.And(
+				subscription.GroupID(groupID),
+				subscription.SteamID(playerID),
+			),
+		).
+		FirstX(context.TODO())
 }
 
-func GetSubPlayerMapByGroupId(groupID int) (m map[string]string) {
-	var sps []models.SubscribePlayer
-	if err := db.Where("group_id = ?", groupID).Find(&sps).Error; err != nil {
-		return
+func GetSubscriptionDto(groupID int, playerID string) *dto.SubscriptionDto {
+	s := GetSubscription(groupID, playerID)
+	return &dto.SubscriptionDto{
+		GroupID:  s.GroupID,
+		PlayerID: s.SteamID,
+		Alias:    s.Alias,
 	}
+}
 
-	m = map[string]string{}
-	for _, sp := range sps {
+func GetSubPlayerMapByGroupId(groupID int) map[string]string {
+	m := map[string]string{}
+	for _, sp := range ListSubPlayersByGroupId(groupID) {
 		m[sp.PlayerID] = sp.Name()
 	}
-	return
+	return m
 }
 
-func SaveSubPlayer(sp *models.SubscribePlayer) {
-	db.Create(sp)
+func SaveSubPlayer(groupId int, steamId string, alias string) {
+	client.Subscription.
+		Create().
+		SetGroupID(groupId).
+		SetSteamID(steamId).
+		SetAlias(alias).
+		SaveX(context.TODO())
 }
 
-func UpdateSubPlayer(sp *models.SubscribePlayer) {
-	db.Save(sp)
+func UpdateSubPlayer(s *ent.Subscription) {
+	s.Update().SaveX(context.TODO())
 }
