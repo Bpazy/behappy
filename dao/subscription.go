@@ -16,12 +16,6 @@ func ListAllPlayerIDs() (pids []string) {
 }
 
 func ListSubPlayersByPlayerId(playerID string) []dto.SubscriptionDto {
-	//var allSub []models.SubscriptionDto
-	//if err := db.Where("player_id = ?", playerID).Find(&allSub).Error; err != nil {
-	//	logrus.Info("没有订阅的玩家")
-	//	return []models.SubscriptionDto{}
-	//}
-	//return allSub
 	return convert(client.Subscription.
 		Query().
 		Where(subscription.SteamID(playerID)).
