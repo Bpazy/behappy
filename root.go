@@ -76,9 +76,9 @@ func startOpenDota() {
 		cron.Recover(cron.DefaultLogger), // or use cron.DefaultLogger
 	))
 	// 每五分钟
-	berrors.Must(c.AddFunc("@every 5m", func() { SubscribeFunc() }))
+	berrors.Unwrap(c.AddFunc("@every 5m", func() { SubscribeFunc() }))
 	// 每周一早晨九点
-	berrors.Must(c.AddFunc("0 9 * * 0", func() { WeeklyBest() }))
+	berrors.Unwrap(c.AddFunc("0 9 * * 0", func() { WeeklyBest() }))
 
 	c.Start()
 }

@@ -36,9 +36,7 @@ func InitHeros() {
 
 	var steamApiResult models.SteamApiResult
 	bjson.MustJsonUnmarshal(b, &steamApiResult)
-
-	heros := steamApiResult.Result.Heroes
-	dao.AddHeros(heros)
+	dao.AddHeros(steamApiResult.Result.Heroes)
 }
 
 func SubscribeFunc() {

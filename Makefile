@@ -25,3 +25,6 @@ install:
 
 clean:
 	rm $(BINDIR)/*
+
+gen:
+	go generate ./ent

@@ -7,7 +7,7 @@ func Unwrap[T interface{}](t T, err error) T {
 	return t
 }
 
-func Must[T interface{}](_ T, err error) {
+func Must(err error) {
 	if err != nil {
 		panic(err)
 	}
