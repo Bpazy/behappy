@@ -6,7 +6,6 @@ import (
 	"github.com/Bpazy/behappy/dao"
 	"github.com/Bpazy/behappy/mirai"
 	"github.com/Bpazy/behappy/mirai/command"
-	_ "github.com/mattn/go-sqlite3"
 	"github.com/robfig/cron/v3"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -79,7 +78,7 @@ func startOpenDota() {
 	// 每五分钟
 	berrors.Must(c.AddFunc("@every 5m", func() { SubscribeFunc() }))
 	// 每周一早晨九点
-	//berrors.Must(c.AddFunc("0 0 9 * * 1", func() { WeeklyBest() }))
+	berrors.Must(c.AddFunc("0 9 * * 0", func() { WeeklyBest() }))
 
 	c.Start()
 }
