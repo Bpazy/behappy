@@ -54,7 +54,7 @@ func SubscribeFunc() {
 	}
 }
 
-func buildMessage(matchPlayers []*dto.MatchPlayer, groupID int, playerID2Name map[string]string) string {
+func buildMessage(matchPlayers []*dto.MatchPlayerDto, groupID int, playerID2Name map[string]string) string {
 	if len(matchPlayers) == 1 {
 		return getSinglePlayerMessage(matchPlayers, groupID)
 	} else {
@@ -62,7 +62,7 @@ func buildMessage(matchPlayers []*dto.MatchPlayer, groupID int, playerID2Name ma
 	}
 }
 
-func getSinglePlayerMessage(matchPlayers []*dto.MatchPlayer, groupID int) string {
+func getSinglePlayerMessage(matchPlayers []*dto.MatchPlayerDto, groupID int) string {
 	mp := matchPlayers[0]
 	sp := dao.GetSubscriptionDto(groupID, mp.PlayerID)
 
@@ -88,7 +88,7 @@ func getSinglePlayerMessage(matchPlayers []*dto.MatchPlayer, groupID int) string
 	return m
 }
 
-func getMultiPlayersMessage(matchPlayers []*dto.MatchPlayer, groupID int, playerID2Name map[string]string) string {
+func getMultiPlayersMessage(matchPlayers []*dto.MatchPlayerDto, groupID int, playerID2Name map[string]string) string {
 	mp := matchPlayers[0]
 	pretty := joinKda(matchPlayers, groupID)
 	if mp.IsWin() {
@@ -99,7 +99,7 @@ func getMultiPlayersMessage(matchPlayers []*dto.MatchPlayer, groupID int, player
 	}
 }
 
-func joinKda(matchPlayers []*dto.MatchPlayer, groupID int) string {
+func joinKda(matchPlayers []*dto.MatchPlayerDto, groupID int) string {
 	pretty := ""
 	for _, mp := range matchPlayers {
 		sp := dao.GetSubscriptionDto(groupID, mp.PlayerID)
@@ -109,8 +109,8 @@ func joinKda(matchPlayers []*dto.MatchPlayer, groupID int) string {
 	return pretty[:len(pretty)-1]
 }
 
-func appendRidicule(matchPlayers []*dto.MatchPlayer, playerID2Name map[string]string) string {
-	maxLoseMp := new(dto.MatchPlayer)
+func appendRidicule(matchPlayers []*dto.MatchPlayerDto, playerID2Name map[string]string) string {
+	maxLoseMp := new(dto.MatchPlayerDto)
 	maxLoseTimes := 0
 	for _, mp := range matchPlayers {
 		_, loseTimes := GetWinOrLoseTimesInRow(mp.PlayerID)
@@ -125,16 +125,16 @@ func appendRidicule(matchPlayers []*dto.MatchPlayer, playerID2Name map[string]st
 	return ""
 }
 
-func getNewMatchPlayersByMatchId(subNewMatchPlayers []*dto.MatchPlayer) map[int64][]*dto.MatchPlayer {
-	result := map[int64][]*dto.MatchPlayer{}
+func getNewMatchPlayersByMatchId(subNewMatchPlayers []*dto.MatchPlayerDto) map[int64][]*dto.MatchPlayerDto {
+	result := map[int64][]*dto.MatchPlayerDto{}
 	for _, mp := range subNewMatchPlayers {
 		result[mp.MatchID] = append(result[mp.MatchID], mp)
 	}
 	return result
 }
 
-func getNewMatchPlayersByGroupId(newMatchPlayers []*dto.MatchPlayer) map[int][]*dto.MatchPlayer {
-	result := map[int][]*dto.MatchPlayer{}
+func getNewMatchPlayersByGroupId(newMatchPlayers []*dto.MatchPlayerDto) map[int][]*dto.MatchPlayerDto {
+	result := map[int][]*dto.MatchPlayerDto{}
 	for _, mp := range newMatchPlayers {
 		// 待通知的订阅群组
 		allSub := dao.ListSubPlayersByPlayerId(mp.PlayerID)
@@ -146,7 +146,7 @@ func getNewMatchPlayersByGroupId(newMatchPlayers []*dto.MatchPlayer) map[int][]*
 	return result
 }
 
-func detectAndSaveNewMatches(playerIDs []string) (result []*dto.MatchPlayer) {
+func detectAndSaveNewMatches(playerIDs []string) (result []*dto.MatchPlayerDto) {
 	for _, pid := range playerIDs {
 		matchPlayers := opendota.GetMatchPlayers(pid)
 		for _, mp := range matchPlayers {
@@ -188,7 +188,7 @@ func GetWinOrLoseTimesInRow(playerID string) (winTimes, loseTimes int) {
 	return
 }
 
-func joinChineseWords(matchPlayers []*dto.MatchPlayer, playerID2Name map[string]string) string {
+func joinChineseWords(matchPlayers []*dto.MatchPlayerDto, playerID2Name map[string]string) string {
 	var names []string
 	for _, mp := range matchPlayers[:len(matchPlayers)-1] {
 		names = append(names, playerID2Name[mp.PlayerID])

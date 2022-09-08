@@ -21,7 +21,7 @@ func InitDB() {
 	initEnt()
 
 	berrors.Must(db.AutoMigrate(
-		&dto.MatchPlayer{},
+		&dto.MatchPlayerDto{},
 	))
 
 	if err := client.Schema.Create(context.Background()); err != nil {

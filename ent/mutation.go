@@ -12,6 +12,7 @@ import (
 	"github.com/Bpazy/behappy/ent/hero"
 	"github.com/Bpazy/behappy/ent/predicate"
 	"github.com/Bpazy/behappy/ent/subscription"
+	"github.com/Bpazy/behappy/ent/subscriptionmatch"
 
 	"entgo.io/ent"
 )
@@ -25,8 +26,9 @@ const (
 	OpUpdateOne = ent.OpUpdateOne
 
 	// Node types.
-	TypeHero         = "Hero"
-	TypeSubscription = "Subscription"
+	TypeHero              = "Hero"
+	TypeSubscription      = "Subscription"
+	TypeSubscriptionMatch = "SubscriptionMatch"
 )
 
 // HeroMutation represents an operation that mutates the Hero nodes in the graph.
@@ -1153,4 +1155,1721 @@ func (m *SubscriptionMutation) ClearEdge(name string) error {
 // It returns an error if the edge is not defined in the schema.
 func (m *SubscriptionMutation) ResetEdge(name string) error {
 	return fmt.Errorf("unknown Subscription edge %s", name)
+}
+
+// SubscriptionMatchMutation represents an operation that mutates the SubscriptionMatch nodes in the graph.
+type SubscriptionMatchMutation struct {
+	config
+	op               Op
+	typ              string
+	id               *int
+	create_time      *time.Time
+	update_time      *time.Time
+	match_id         *int64
+	addmatch_id      *int64
+	player_id        *string
+	player_slot      *int
+	addplayer_slot   *int
+	radiant_win      *bool
+	duration         *int
+	addduration      *int
+	game_mode        *int
+	addgame_mode     *int
+	lobby_type       *int
+	addlobby_type    *int
+	hero_id          *int
+	addhero_id       *int
+	start_time       *int
+	addstart_time    *int
+	version          *int
+	addversion       *int
+	kills            *int
+	addkills         *int
+	deaths           *int
+	adddeaths        *int
+	assists          *int
+	addassists       *int
+	skill            *int
+	addskill         *int
+	leaver_status    *int
+	addleaver_status *int
+	party_size       *int
+	addparty_size    *int
+	clearedFields    map[string]struct{}
+	done             bool
+	oldValue         func(context.Context) (*SubscriptionMatch, error)
+	predicates       []predicate.SubscriptionMatch
+}
+
+var _ ent.Mutation = (*SubscriptionMatchMutation)(nil)
+
+// subscriptionmatchOption allows management of the mutation configuration using functional options.
+type subscriptionmatchOption func(*SubscriptionMatchMutation)
+
+// newSubscriptionMatchMutation creates new mutation for the SubscriptionMatch entity.
+func newSubscriptionMatchMutation(c config, op Op, opts ...subscriptionmatchOption) *SubscriptionMatchMutation {
+	m := &SubscriptionMatchMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeSubscriptionMatch,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withSubscriptionMatchID sets the ID field of the mutation.
+func withSubscriptionMatchID(id int) subscriptionmatchOption {
+	return func(m *SubscriptionMatchMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *SubscriptionMatch
+		)
+		m.oldValue = func(ctx context.Context) (*SubscriptionMatch, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().SubscriptionMatch.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withSubscriptionMatch sets the old SubscriptionMatch of the mutation.
+func withSubscriptionMatch(node *SubscriptionMatch) subscriptionmatchOption {
+	return func(m *SubscriptionMatchMutation) {
+		m.oldValue = func(context.Context) (*SubscriptionMatch, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m SubscriptionMatchMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m SubscriptionMatchMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *SubscriptionMatchMutation) ID() (id int, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *SubscriptionMatchMutation) IDs(ctx context.Context) ([]int, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []int{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().SubscriptionMatch.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetCreateTime sets the "create_time" field.
+func (m *SubscriptionMatchMutation) SetCreateTime(t time.Time) {
+	m.create_time = &t
+}
+
+// CreateTime returns the value of the "create_time" field in the mutation.
+func (m *SubscriptionMatchMutation) CreateTime() (r time.Time, exists bool) {
+	v := m.create_time
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreateTime returns the old "create_time" field's value of the SubscriptionMatch entity.
+// If the SubscriptionMatch object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SubscriptionMatchMutation) OldCreateTime(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreateTime is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreateTime requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreateTime: %w", err)
+	}
+	return oldValue.CreateTime, nil
+}
+
+// ResetCreateTime resets all changes to the "create_time" field.
+func (m *SubscriptionMatchMutation) ResetCreateTime() {
+	m.create_time = nil
+}
+
+// SetUpdateTime sets the "update_time" field.
+func (m *SubscriptionMatchMutation) SetUpdateTime(t time.Time) {
+	m.update_time = &t
+}
+
+// UpdateTime returns the value of the "update_time" field in the mutation.
+func (m *SubscriptionMatchMutation) UpdateTime() (r time.Time, exists bool) {
+	v := m.update_time
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdateTime returns the old "update_time" field's value of the SubscriptionMatch entity.
+// If the SubscriptionMatch object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SubscriptionMatchMutation) OldUpdateTime(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdateTime is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdateTime requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdateTime: %w", err)
+	}
+	return oldValue.UpdateTime, nil
+}
+
+// ResetUpdateTime resets all changes to the "update_time" field.
+func (m *SubscriptionMatchMutation) ResetUpdateTime() {
+	m.update_time = nil
+}
+
+// SetMatchID sets the "match_id" field.
+func (m *SubscriptionMatchMutation) SetMatchID(i int64) {
+	m.match_id = &i
+	m.addmatch_id = nil
+}
+
+// MatchID returns the value of the "match_id" field in the mutation.
+func (m *SubscriptionMatchMutation) MatchID() (r int64, exists bool) {
+	v := m.match_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldMatchID returns the old "match_id" field's value of the SubscriptionMatch entity.
+// If the SubscriptionMatch object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SubscriptionMatchMutation) OldMatchID(ctx context.Context) (v int64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldMatchID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldMatchID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldMatchID: %w", err)
+	}
+	return oldValue.MatchID, nil
+}
+
+// AddMatchID adds i to the "match_id" field.
+func (m *SubscriptionMatchMutation) AddMatchID(i int64) {
+	if m.addmatch_id != nil {
+		*m.addmatch_id += i
+	} else {
+		m.addmatch_id = &i
+	}
+}
+
+// AddedMatchID returns the value that was added to the "match_id" field in this mutation.
+func (m *SubscriptionMatchMutation) AddedMatchID() (r int64, exists bool) {
+	v := m.addmatch_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetMatchID resets all changes to the "match_id" field.
+func (m *SubscriptionMatchMutation) ResetMatchID() {
+	m.match_id = nil
+	m.addmatch_id = nil
+}
+
+// SetPlayerID sets the "player_id" field.
+func (m *SubscriptionMatchMutation) SetPlayerID(s string) {
+	m.player_id = &s
+}
+
+// PlayerID returns the value of the "player_id" field in the mutation.
+func (m *SubscriptionMatchMutation) PlayerID() (r string, exists bool) {
+	v := m.player_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPlayerID returns the old "player_id" field's value of the SubscriptionMatch entity.
+// If the SubscriptionMatch object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SubscriptionMatchMutation) OldPlayerID(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldPlayerID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldPlayerID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPlayerID: %w", err)
+	}
+	return oldValue.PlayerID, nil
+}
+
+// ResetPlayerID resets all changes to the "player_id" field.
+func (m *SubscriptionMatchMutation) ResetPlayerID() {
+	m.player_id = nil
+}
+
+// SetPlayerSlot sets the "player_slot" field.
+func (m *SubscriptionMatchMutation) SetPlayerSlot(i int) {
+	m.player_slot = &i
+	m.addplayer_slot = nil
+}
+
+// PlayerSlot returns the value of the "player_slot" field in the mutation.
+func (m *SubscriptionMatchMutation) PlayerSlot() (r int, exists bool) {
+	v := m.player_slot
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPlayerSlot returns the old "player_slot" field's value of the SubscriptionMatch entity.
+// If the SubscriptionMatch object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SubscriptionMatchMutation) OldPlayerSlot(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldPlayerSlot is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldPlayerSlot requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPlayerSlot: %w", err)
+	}
+	return oldValue.PlayerSlot, nil
+}
+
+// AddPlayerSlot adds i to the "player_slot" field.
+func (m *SubscriptionMatchMutation) AddPlayerSlot(i int) {
+	if m.addplayer_slot != nil {
+		*m.addplayer_slot += i
+	} else {
+		m.addplayer_slot = &i
+	}
+}
+
+// AddedPlayerSlot returns the value that was added to the "player_slot" field in this mutation.
+func (m *SubscriptionMatchMutation) AddedPlayerSlot() (r int, exists bool) {
+	v := m.addplayer_slot
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetPlayerSlot resets all changes to the "player_slot" field.
+func (m *SubscriptionMatchMutation) ResetPlayerSlot() {
+	m.player_slot = nil
+	m.addplayer_slot = nil
+}
+
+// SetRadiantWin sets the "radiant_win" field.
+func (m *SubscriptionMatchMutation) SetRadiantWin(b bool) {
+	m.radiant_win = &b
+}
+
+// RadiantWin returns the value of the "radiant_win" field in the mutation.
+func (m *SubscriptionMatchMutation) RadiantWin() (r bool, exists bool) {
+	v := m.radiant_win
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldRadiantWin returns the old "radiant_win" field's value of the SubscriptionMatch entity.
+// If the SubscriptionMatch object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SubscriptionMatchMutation) OldRadiantWin(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldRadiantWin is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldRadiantWin requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldRadiantWin: %w", err)
+	}
+	return oldValue.RadiantWin, nil
+}
+
+// ResetRadiantWin resets all changes to the "radiant_win" field.
+func (m *SubscriptionMatchMutation) ResetRadiantWin() {
+	m.radiant_win = nil
+}
+
+// SetDuration sets the "duration" field.
+func (m *SubscriptionMatchMutation) SetDuration(i int) {
+	m.duration = &i
+	m.addduration = nil
+}
+
+// Duration returns the value of the "duration" field in the mutation.
+func (m *SubscriptionMatchMutation) Duration() (r int, exists bool) {
+	v := m.duration
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDuration returns the old "duration" field's value of the SubscriptionMatch entity.
+// If the SubscriptionMatch object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SubscriptionMatchMutation) OldDuration(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDuration is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDuration requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDuration: %w", err)
+	}
+	return oldValue.Duration, nil
+}
+
+// AddDuration adds i to the "duration" field.
+func (m *SubscriptionMatchMutation) AddDuration(i int) {
+	if m.addduration != nil {
+		*m.addduration += i
+	} else {
+		m.addduration = &i
+	}
+}
+
+// AddedDuration returns the value that was added to the "duration" field in this mutation.
+func (m *SubscriptionMatchMutation) AddedDuration() (r int, exists bool) {
+	v := m.addduration
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetDuration resets all changes to the "duration" field.
+func (m *SubscriptionMatchMutation) ResetDuration() {
+	m.duration = nil
+	m.addduration = nil
+}
+
+// SetGameMode sets the "game_mode" field.
+func (m *SubscriptionMatchMutation) SetGameMode(i int) {
+	m.game_mode = &i
+	m.addgame_mode = nil
+}
+
+// GameMode returns the value of the "game_mode" field in the mutation.
+func (m *SubscriptionMatchMutation) GameMode() (r int, exists bool) {
+	v := m.game_mode
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldGameMode returns the old "game_mode" field's value of the SubscriptionMatch entity.
+// If the SubscriptionMatch object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SubscriptionMatchMutation) OldGameMode(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldGameMode is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldGameMode requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldGameMode: %w", err)
+	}
+	return oldValue.GameMode, nil
+}
+
+// AddGameMode adds i to the "game_mode" field.
+func (m *SubscriptionMatchMutation) AddGameMode(i int) {
+	if m.addgame_mode != nil {
+		*m.addgame_mode += i
+	} else {
+		m.addgame_mode = &i
+	}
+}
+
+// AddedGameMode returns the value that was added to the "game_mode" field in this mutation.
+func (m *SubscriptionMatchMutation) AddedGameMode() (r int, exists bool) {
+	v := m.addgame_mode
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetGameMode resets all changes to the "game_mode" field.
+func (m *SubscriptionMatchMutation) ResetGameMode() {
+	m.game_mode = nil
+	m.addgame_mode = nil
+}
+
+// SetLobbyType sets the "lobby_type" field.
+func (m *SubscriptionMatchMutation) SetLobbyType(i int) {
+	m.lobby_type = &i
+	m.addlobby_type = nil
+}
+
+// LobbyType returns the value of the "lobby_type" field in the mutation.
+func (m *SubscriptionMatchMutation) LobbyType() (r int, exists bool) {
+	v := m.lobby_type
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldLobbyType returns the old "lobby_type" field's value of the SubscriptionMatch entity.
+// If the SubscriptionMatch object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SubscriptionMatchMutation) OldLobbyType(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldLobbyType is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldLobbyType requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldLobbyType: %w", err)
+	}
+	return oldValue.LobbyType, nil
+}
+
+// AddLobbyType adds i to the "lobby_type" field.
+func (m *SubscriptionMatchMutation) AddLobbyType(i int) {
+	if m.addlobby_type != nil {
+		*m.addlobby_type += i
+	} else {
+		m.addlobby_type = &i
+	}
+}
+
+// AddedLobbyType returns the value that was added to the "lobby_type" field in this mutation.
+func (m *SubscriptionMatchMutation) AddedLobbyType() (r int, exists bool) {
+	v := m.addlobby_type
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetLobbyType resets all changes to the "lobby_type" field.
+func (m *SubscriptionMatchMutation) ResetLobbyType() {
+	m.lobby_type = nil
+	m.addlobby_type = nil
+}
+
+// SetHeroID sets the "hero_id" field.
+func (m *SubscriptionMatchMutation) SetHeroID(i int) {
+	m.hero_id = &i
+	m.addhero_id = nil
+}
+
+// HeroID returns the value of the "hero_id" field in the mutation.
+func (m *SubscriptionMatchMutation) HeroID() (r int, exists bool) {
+	v := m.hero_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldHeroID returns the old "hero_id" field's value of the SubscriptionMatch entity.
+// If the SubscriptionMatch object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SubscriptionMatchMutation) OldHeroID(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldHeroID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldHeroID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldHeroID: %w", err)
+	}
+	return oldValue.HeroID, nil
+}
+
+// AddHeroID adds i to the "hero_id" field.
+func (m *SubscriptionMatchMutation) AddHeroID(i int) {
+	if m.addhero_id != nil {
+		*m.addhero_id += i
+	} else {
+		m.addhero_id = &i
+	}
+}
+
+// AddedHeroID returns the value that was added to the "hero_id" field in this mutation.
+func (m *SubscriptionMatchMutation) AddedHeroID() (r int, exists bool) {
+	v := m.addhero_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetHeroID resets all changes to the "hero_id" field.
+func (m *SubscriptionMatchMutation) ResetHeroID() {
+	m.hero_id = nil
+	m.addhero_id = nil
+}
+
+// SetStartTime sets the "start_time" field.
+func (m *SubscriptionMatchMutation) SetStartTime(i int) {
+	m.start_time = &i
+	m.addstart_time = nil
+}
+
+// StartTime returns the value of the "start_time" field in the mutation.
+func (m *SubscriptionMatchMutation) StartTime() (r int, exists bool) {
+	v := m.start_time
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldStartTime returns the old "start_time" field's value of the SubscriptionMatch entity.
+// If the SubscriptionMatch object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SubscriptionMatchMutation) OldStartTime(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldStartTime is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldStartTime requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldStartTime: %w", err)
+	}
+	return oldValue.StartTime, nil
+}
+
+// AddStartTime adds i to the "start_time" field.
+func (m *SubscriptionMatchMutation) AddStartTime(i int) {
+	if m.addstart_time != nil {
+		*m.addstart_time += i
+	} else {
+		m.addstart_time = &i
+	}
+}
+
+// AddedStartTime returns the value that was added to the "start_time" field in this mutation.
+func (m *SubscriptionMatchMutation) AddedStartTime() (r int, exists bool) {
+	v := m.addstart_time
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetStartTime resets all changes to the "start_time" field.
+func (m *SubscriptionMatchMutation) ResetStartTime() {
+	m.start_time = nil
+	m.addstart_time = nil
+}
+
+// SetVersion sets the "version" field.
+func (m *SubscriptionMatchMutation) SetVersion(i int) {
+	m.version = &i
+	m.addversion = nil
+}
+
+// Version returns the value of the "version" field in the mutation.
+func (m *SubscriptionMatchMutation) Version() (r int, exists bool) {
+	v := m.version
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldVersion returns the old "version" field's value of the SubscriptionMatch entity.
+// If the SubscriptionMatch object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SubscriptionMatchMutation) OldVersion(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldVersion is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldVersion requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldVersion: %w", err)
+	}
+	return oldValue.Version, nil
+}
+
+// AddVersion adds i to the "version" field.
+func (m *SubscriptionMatchMutation) AddVersion(i int) {
+	if m.addversion != nil {
+		*m.addversion += i
+	} else {
+		m.addversion = &i
+	}
+}
+
+// AddedVersion returns the value that was added to the "version" field in this mutation.
+func (m *SubscriptionMatchMutation) AddedVersion() (r int, exists bool) {
+	v := m.addversion
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetVersion resets all changes to the "version" field.
+func (m *SubscriptionMatchMutation) ResetVersion() {
+	m.version = nil
+	m.addversion = nil
+}
+
+// SetKills sets the "kills" field.
+func (m *SubscriptionMatchMutation) SetKills(i int) {
+	m.kills = &i
+	m.addkills = nil
+}
+
+// Kills returns the value of the "kills" field in the mutation.
+func (m *SubscriptionMatchMutation) Kills() (r int, exists bool) {
+	v := m.kills
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldKills returns the old "kills" field's value of the SubscriptionMatch entity.
+// If the SubscriptionMatch object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SubscriptionMatchMutation) OldKills(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldKills is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldKills requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldKills: %w", err)
+	}
+	return oldValue.Kills, nil
+}
+
+// AddKills adds i to the "kills" field.
+func (m *SubscriptionMatchMutation) AddKills(i int) {
+	if m.addkills != nil {
+		*m.addkills += i
+	} else {
+		m.addkills = &i
+	}
+}
+
+// AddedKills returns the value that was added to the "kills" field in this mutation.
+func (m *SubscriptionMatchMutation) AddedKills() (r int, exists bool) {
+	v := m.addkills
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetKills resets all changes to the "kills" field.
+func (m *SubscriptionMatchMutation) ResetKills() {
+	m.kills = nil
+	m.addkills = nil
+}
+
+// SetDeaths sets the "deaths" field.
+func (m *SubscriptionMatchMutation) SetDeaths(i int) {
+	m.deaths = &i
+	m.adddeaths = nil
+}
+
+// Deaths returns the value of the "deaths" field in the mutation.
+func (m *SubscriptionMatchMutation) Deaths() (r int, exists bool) {
+	v := m.deaths
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDeaths returns the old "deaths" field's value of the SubscriptionMatch entity.
+// If the SubscriptionMatch object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SubscriptionMatchMutation) OldDeaths(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDeaths is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDeaths requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDeaths: %w", err)
+	}
+	return oldValue.Deaths, nil
+}
+
+// AddDeaths adds i to the "deaths" field.
+func (m *SubscriptionMatchMutation) AddDeaths(i int) {
+	if m.adddeaths != nil {
+		*m.adddeaths += i
+	} else {
+		m.adddeaths = &i
+	}
+}
+
+// AddedDeaths returns the value that was added to the "deaths" field in this mutation.
+func (m *SubscriptionMatchMutation) AddedDeaths() (r int, exists bool) {
+	v := m.adddeaths
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetDeaths resets all changes to the "deaths" field.
+func (m *SubscriptionMatchMutation) ResetDeaths() {
+	m.deaths = nil
+	m.adddeaths = nil
+}
+
+// SetAssists sets the "assists" field.
+func (m *SubscriptionMatchMutation) SetAssists(i int) {
+	m.assists = &i
+	m.addassists = nil
+}
+
+// Assists returns the value of the "assists" field in the mutation.
+func (m *SubscriptionMatchMutation) Assists() (r int, exists bool) {
+	v := m.assists
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldAssists returns the old "assists" field's value of the SubscriptionMatch entity.
+// If the SubscriptionMatch object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SubscriptionMatchMutation) OldAssists(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldAssists is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldAssists requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldAssists: %w", err)
+	}
+	return oldValue.Assists, nil
+}
+
+// AddAssists adds i to the "assists" field.
+func (m *SubscriptionMatchMutation) AddAssists(i int) {
+	if m.addassists != nil {
+		*m.addassists += i
+	} else {
+		m.addassists = &i
+	}
+}
+
+// AddedAssists returns the value that was added to the "assists" field in this mutation.
+func (m *SubscriptionMatchMutation) AddedAssists() (r int, exists bool) {
+	v := m.addassists
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetAssists resets all changes to the "assists" field.
+func (m *SubscriptionMatchMutation) ResetAssists() {
+	m.assists = nil
+	m.addassists = nil
+}
+
+// SetSkill sets the "skill" field.
+func (m *SubscriptionMatchMutation) SetSkill(i int) {
+	m.skill = &i
+	m.addskill = nil
+}
+
+// Skill returns the value of the "skill" field in the mutation.
+func (m *SubscriptionMatchMutation) Skill() (r int, exists bool) {
+	v := m.skill
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSkill returns the old "skill" field's value of the SubscriptionMatch entity.
+// If the SubscriptionMatch object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SubscriptionMatchMutation) OldSkill(ctx context.Context) (v *int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSkill is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSkill requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSkill: %w", err)
+	}
+	return oldValue.Skill, nil
+}
+
+// AddSkill adds i to the "skill" field.
+func (m *SubscriptionMatchMutation) AddSkill(i int) {
+	if m.addskill != nil {
+		*m.addskill += i
+	} else {
+		m.addskill = &i
+	}
+}
+
+// AddedSkill returns the value that was added to the "skill" field in this mutation.
+func (m *SubscriptionMatchMutation) AddedSkill() (r int, exists bool) {
+	v := m.addskill
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearSkill clears the value of the "skill" field.
+func (m *SubscriptionMatchMutation) ClearSkill() {
+	m.skill = nil
+	m.addskill = nil
+	m.clearedFields[subscriptionmatch.FieldSkill] = struct{}{}
+}
+
+// SkillCleared returns if the "skill" field was cleared in this mutation.
+func (m *SubscriptionMatchMutation) SkillCleared() bool {
+	_, ok := m.clearedFields[subscriptionmatch.FieldSkill]
+	return ok
+}
+
+// ResetSkill resets all changes to the "skill" field.
+func (m *SubscriptionMatchMutation) ResetSkill() {
+	m.skill = nil
+	m.addskill = nil
+	delete(m.clearedFields, subscriptionmatch.FieldSkill)
+}
+
+// SetLeaverStatus sets the "leaver_status" field.
+func (m *SubscriptionMatchMutation) SetLeaverStatus(i int) {
+	m.leaver_status = &i
+	m.addleaver_status = nil
+}
+
+// LeaverStatus returns the value of the "leaver_status" field in the mutation.
+func (m *SubscriptionMatchMutation) LeaverStatus() (r int, exists bool) {
+	v := m.leaver_status
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldLeaverStatus returns the old "leaver_status" field's value of the SubscriptionMatch entity.
+// If the SubscriptionMatch object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SubscriptionMatchMutation) OldLeaverStatus(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldLeaverStatus is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldLeaverStatus requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldLeaverStatus: %w", err)
+	}
+	return oldValue.LeaverStatus, nil
+}
+
+// AddLeaverStatus adds i to the "leaver_status" field.
+func (m *SubscriptionMatchMutation) AddLeaverStatus(i int) {
+	if m.addleaver_status != nil {
+		*m.addleaver_status += i
+	} else {
+		m.addleaver_status = &i
+	}
+}
+
+// AddedLeaverStatus returns the value that was added to the "leaver_status" field in this mutation.
+func (m *SubscriptionMatchMutation) AddedLeaverStatus() (r int, exists bool) {
+	v := m.addleaver_status
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetLeaverStatus resets all changes to the "leaver_status" field.
+func (m *SubscriptionMatchMutation) ResetLeaverStatus() {
+	m.leaver_status = nil
+	m.addleaver_status = nil
+}
+
+// SetPartySize sets the "party_size" field.
+func (m *SubscriptionMatchMutation) SetPartySize(i int) {
+	m.party_size = &i
+	m.addparty_size = nil
+}
+
+// PartySize returns the value of the "party_size" field in the mutation.
+func (m *SubscriptionMatchMutation) PartySize() (r int, exists bool) {
+	v := m.party_size
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPartySize returns the old "party_size" field's value of the SubscriptionMatch entity.
+// If the SubscriptionMatch object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SubscriptionMatchMutation) OldPartySize(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldPartySize is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldPartySize requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPartySize: %w", err)
+	}
+	return oldValue.PartySize, nil
+}
+
+// AddPartySize adds i to the "party_size" field.
+func (m *SubscriptionMatchMutation) AddPartySize(i int) {
+	if m.addparty_size != nil {
+		*m.addparty_size += i
+	} else {
+		m.addparty_size = &i
+	}
+}
+
+// AddedPartySize returns the value that was added to the "party_size" field in this mutation.
+func (m *SubscriptionMatchMutation) AddedPartySize() (r int, exists bool) {
+	v := m.addparty_size
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetPartySize resets all changes to the "party_size" field.
+func (m *SubscriptionMatchMutation) ResetPartySize() {
+	m.party_size = nil
+	m.addparty_size = nil
+}
+
+// Where appends a list predicates to the SubscriptionMatchMutation builder.
+func (m *SubscriptionMatchMutation) Where(ps ...predicate.SubscriptionMatch) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// Op returns the operation name.
+func (m *SubscriptionMatchMutation) Op() Op {
+	return m.op
+}
+
+// Type returns the node type of this mutation (SubscriptionMatch).
+func (m *SubscriptionMatchMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *SubscriptionMatchMutation) Fields() []string {
+	fields := make([]string, 0, 18)
+	if m.create_time != nil {
+		fields = append(fields, subscriptionmatch.FieldCreateTime)
+	}
+	if m.update_time != nil {
+		fields = append(fields, subscriptionmatch.FieldUpdateTime)
+	}
+	if m.match_id != nil {
+		fields = append(fields, subscriptionmatch.FieldMatchID)
+	}
+	if m.player_id != nil {
+		fields = append(fields, subscriptionmatch.FieldPlayerID)
+	}
+	if m.player_slot != nil {
+		fields = append(fields, subscriptionmatch.FieldPlayerSlot)
+	}
+	if m.radiant_win != nil {
+		fields = append(fields, subscriptionmatch.FieldRadiantWin)
+	}
+	if m.duration != nil {
+		fields = append(fields, subscriptionmatch.FieldDuration)
+	}
+	if m.game_mode != nil {
+		fields = append(fields, subscriptionmatch.FieldGameMode)
+	}
+	if m.lobby_type != nil {
+		fields = append(fields, subscriptionmatch.FieldLobbyType)
+	}
+	if m.hero_id != nil {
+		fields = append(fields, subscriptionmatch.FieldHeroID)
+	}
+	if m.start_time != nil {
+		fields = append(fields, subscriptionmatch.FieldStartTime)
+	}
+	if m.version != nil {
+		fields = append(fields, subscriptionmatch.FieldVersion)
+	}
+	if m.kills != nil {
+		fields = append(fields, subscriptionmatch.FieldKills)
+	}
+	if m.deaths != nil {
+		fields = append(fields, subscriptionmatch.FieldDeaths)
+	}
+	if m.assists != nil {
+		fields = append(fields, subscriptionmatch.FieldAssists)
+	}
+	if m.skill != nil {
+		fields = append(fields, subscriptionmatch.FieldSkill)
+	}
+	if m.leaver_status != nil {
+		fields = append(fields, subscriptionmatch.FieldLeaverStatus)
+	}
+	if m.party_size != nil {
+		fields = append(fields, subscriptionmatch.FieldPartySize)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *SubscriptionMatchMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case subscriptionmatch.FieldCreateTime:
+		return m.CreateTime()
+	case subscriptionmatch.FieldUpdateTime:
+		return m.UpdateTime()
+	case subscriptionmatch.FieldMatchID:
+		return m.MatchID()
+	case subscriptionmatch.FieldPlayerID:
+		return m.PlayerID()
+	case subscriptionmatch.FieldPlayerSlot:
+		return m.PlayerSlot()
+	case subscriptionmatch.FieldRadiantWin:
+		return m.RadiantWin()
+	case subscriptionmatch.FieldDuration:
+		return m.Duration()
+	case subscriptionmatch.FieldGameMode:
+		return m.GameMode()
+	case subscriptionmatch.FieldLobbyType:
+		return m.LobbyType()
+	case subscriptionmatch.FieldHeroID:
+		return m.HeroID()
+	case subscriptionmatch.FieldStartTime:
+		return m.StartTime()
+	case subscriptionmatch.FieldVersion:
+		return m.Version()
+	case subscriptionmatch.FieldKills:
+		return m.Kills()
+	case subscriptionmatch.FieldDeaths:
+		return m.Deaths()
+	case subscriptionmatch.FieldAssists:
+		return m.Assists()
+	case subscriptionmatch.FieldSkill:
+		return m.Skill()
+	case subscriptionmatch.FieldLeaverStatus:
+		return m.LeaverStatus()
+	case subscriptionmatch.FieldPartySize:
+		return m.PartySize()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *SubscriptionMatchMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case subscriptionmatch.FieldCreateTime:
+		return m.OldCreateTime(ctx)
+	case subscriptionmatch.FieldUpdateTime:
+		return m.OldUpdateTime(ctx)
+	case subscriptionmatch.FieldMatchID:
+		return m.OldMatchID(ctx)
+	case subscriptionmatch.FieldPlayerID:
+		return m.OldPlayerID(ctx)
+	case subscriptionmatch.FieldPlayerSlot:
+		return m.OldPlayerSlot(ctx)
+	case subscriptionmatch.FieldRadiantWin:
+		return m.OldRadiantWin(ctx)
+	case subscriptionmatch.FieldDuration:
+		return m.OldDuration(ctx)
+	case subscriptionmatch.FieldGameMode:
+		return m.OldGameMode(ctx)
+	case subscriptionmatch.FieldLobbyType:
+		return m.OldLobbyType(ctx)
+	case subscriptionmatch.FieldHeroID:
+		return m.OldHeroID(ctx)
+	case subscriptionmatch.FieldStartTime:
+		return m.OldStartTime(ctx)
+	case subscriptionmatch.FieldVersion:
+		return m.OldVersion(ctx)
+	case subscriptionmatch.FieldKills:
+		return m.OldKills(ctx)
+	case subscriptionmatch.FieldDeaths:
+		return m.OldDeaths(ctx)
+	case subscriptionmatch.FieldAssists:
+		return m.OldAssists(ctx)
+	case subscriptionmatch.FieldSkill:
+		return m.OldSkill(ctx)
+	case subscriptionmatch.FieldLeaverStatus:
+		return m.OldLeaverStatus(ctx)
+	case subscriptionmatch.FieldPartySize:
+		return m.OldPartySize(ctx)
+	}
+	return nil, fmt.Errorf("unknown SubscriptionMatch field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *SubscriptionMatchMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case subscriptionmatch.FieldCreateTime:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreateTime(v)
+		return nil
+	case subscriptionmatch.FieldUpdateTime:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdateTime(v)
+		return nil
+	case subscriptionmatch.FieldMatchID:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetMatchID(v)
+		return nil
+	case subscriptionmatch.FieldPlayerID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPlayerID(v)
+		return nil
+	case subscriptionmatch.FieldPlayerSlot:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPlayerSlot(v)
+		return nil
+	case subscriptionmatch.FieldRadiantWin:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetRadiantWin(v)
+		return nil
+	case subscriptionmatch.FieldDuration:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDuration(v)
+		return nil
+	case subscriptionmatch.FieldGameMode:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetGameMode(v)
+		return nil
+	case subscriptionmatch.FieldLobbyType:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetLobbyType(v)
+		return nil
+	case subscriptionmatch.FieldHeroID:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetHeroID(v)
+		return nil
+	case subscriptionmatch.FieldStartTime:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetStartTime(v)
+		return nil
+	case subscriptionmatch.FieldVersion:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetVersion(v)
+		return nil
+	case subscriptionmatch.FieldKills:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetKills(v)
+		return nil
+	case subscriptionmatch.FieldDeaths:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDeaths(v)
+		return nil
+	case subscriptionmatch.FieldAssists:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetAssists(v)
+		return nil
+	case subscriptionmatch.FieldSkill:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSkill(v)
+		return nil
+	case subscriptionmatch.FieldLeaverStatus:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetLeaverStatus(v)
+		return nil
+	case subscriptionmatch.FieldPartySize:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPartySize(v)
+		return nil
+	}
+	return fmt.Errorf("unknown SubscriptionMatch field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *SubscriptionMatchMutation) AddedFields() []string {
+	var fields []string
+	if m.addmatch_id != nil {
+		fields = append(fields, subscriptionmatch.FieldMatchID)
+	}
+	if m.addplayer_slot != nil {
+		fields = append(fields, subscriptionmatch.FieldPlayerSlot)
+	}
+	if m.addduration != nil {
+		fields = append(fields, subscriptionmatch.FieldDuration)
+	}
+	if m.addgame_mode != nil {
+		fields = append(fields, subscriptionmatch.FieldGameMode)
+	}
+	if m.addlobby_type != nil {
+		fields = append(fields, subscriptionmatch.FieldLobbyType)
+	}
+	if m.addhero_id != nil {
+		fields = append(fields, subscriptionmatch.FieldHeroID)
+	}
+	if m.addstart_time != nil {
+		fields = append(fields, subscriptionmatch.FieldStartTime)
+	}
+	if m.addversion != nil {
+		fields = append(fields, subscriptionmatch.FieldVersion)
+	}
+	if m.addkills != nil {
+		fields = append(fields, subscriptionmatch.FieldKills)
+	}
+	if m.adddeaths != nil {
+		fields = append(fields, subscriptionmatch.FieldDeaths)
+	}
+	if m.addassists != nil {
+		fields = append(fields, subscriptionmatch.FieldAssists)
+	}
+	if m.addskill != nil {
+		fields = append(fields, subscriptionmatch.FieldSkill)
+	}
+	if m.addleaver_status != nil {
+		fields = append(fields, subscriptionmatch.FieldLeaverStatus)
+	}
+	if m.addparty_size != nil {
+		fields = append(fields, subscriptionmatch.FieldPartySize)
+	}
+	return fields
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *SubscriptionMatchMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case subscriptionmatch.FieldMatchID:
+		return m.AddedMatchID()
+	case subscriptionmatch.FieldPlayerSlot:
+		return m.AddedPlayerSlot()
+	case subscriptionmatch.FieldDuration:
+		return m.AddedDuration()
+	case subscriptionmatch.FieldGameMode:
+		return m.AddedGameMode()
+	case subscriptionmatch.FieldLobbyType:
+		return m.AddedLobbyType()
+	case subscriptionmatch.FieldHeroID:
+		return m.AddedHeroID()
+	case subscriptionmatch.FieldStartTime:
+		return m.AddedStartTime()
+	case subscriptionmatch.FieldVersion:
+		return m.AddedVersion()
+	case subscriptionmatch.FieldKills:
+		return m.AddedKills()
+	case subscriptionmatch.FieldDeaths:
+		return m.AddedDeaths()
+	case subscriptionmatch.FieldAssists:
+		return m.AddedAssists()
+	case subscriptionmatch.FieldSkill:
+		return m.AddedSkill()
+	case subscriptionmatch.FieldLeaverStatus:
+		return m.AddedLeaverStatus()
+	case subscriptionmatch.FieldPartySize:
+		return m.AddedPartySize()
+	}
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *SubscriptionMatchMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	case subscriptionmatch.FieldMatchID:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddMatchID(v)
+		return nil
+	case subscriptionmatch.FieldPlayerSlot:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddPlayerSlot(v)
+		return nil
+	case subscriptionmatch.FieldDuration:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddDuration(v)
+		return nil
+	case subscriptionmatch.FieldGameMode:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddGameMode(v)
+		return nil
+	case subscriptionmatch.FieldLobbyType:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddLobbyType(v)
+		return nil
+	case subscriptionmatch.FieldHeroID:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddHeroID(v)
+		return nil
+	case subscriptionmatch.FieldStartTime:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddStartTime(v)
+		return nil
+	case subscriptionmatch.FieldVersion:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddVersion(v)
+		return nil
+	case subscriptionmatch.FieldKills:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddKills(v)
+		return nil
+	case subscriptionmatch.FieldDeaths:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddDeaths(v)
+		return nil
+	case subscriptionmatch.FieldAssists:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddAssists(v)
+		return nil
+	case subscriptionmatch.FieldSkill:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddSkill(v)
+		return nil
+	case subscriptionmatch.FieldLeaverStatus:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddLeaverStatus(v)
+		return nil
+	case subscriptionmatch.FieldPartySize:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddPartySize(v)
+		return nil
+	}
+	return fmt.Errorf("unknown SubscriptionMatch numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *SubscriptionMatchMutation) ClearedFields() []string {
+	var fields []string
+	if m.FieldCleared(subscriptionmatch.FieldSkill) {
+		fields = append(fields, subscriptionmatch.FieldSkill)
+	}
+	return fields
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *SubscriptionMatchMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *SubscriptionMatchMutation) ClearField(name string) error {
+	switch name {
+	case subscriptionmatch.FieldSkill:
+		m.ClearSkill()
+		return nil
+	}
+	return fmt.Errorf("unknown SubscriptionMatch nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *SubscriptionMatchMutation) ResetField(name string) error {
+	switch name {
+	case subscriptionmatch.FieldCreateTime:
+		m.ResetCreateTime()
+		return nil
+	case subscriptionmatch.FieldUpdateTime:
+		m.ResetUpdateTime()
+		return nil
+	case subscriptionmatch.FieldMatchID:
+		m.ResetMatchID()
+		return nil
+	case subscriptionmatch.FieldPlayerID:
+		m.ResetPlayerID()
+		return nil
+	case subscriptionmatch.FieldPlayerSlot:
+		m.ResetPlayerSlot()
+		return nil
+	case subscriptionmatch.FieldRadiantWin:
+		m.ResetRadiantWin()
+		return nil
+	case subscriptionmatch.FieldDuration:
+		m.ResetDuration()
+		return nil
+	case subscriptionmatch.FieldGameMode:
+		m.ResetGameMode()
+		return nil
+	case subscriptionmatch.FieldLobbyType:
+		m.ResetLobbyType()
+		return nil
+	case subscriptionmatch.FieldHeroID:
+		m.ResetHeroID()
+		return nil
+	case subscriptionmatch.FieldStartTime:
+		m.ResetStartTime()
+		return nil
+	case subscriptionmatch.FieldVersion:
+		m.ResetVersion()
+		return nil
+	case subscriptionmatch.FieldKills:
+		m.ResetKills()
+		return nil
+	case subscriptionmatch.FieldDeaths:
+		m.ResetDeaths()
+		return nil
+	case subscriptionmatch.FieldAssists:
+		m.ResetAssists()
+		return nil
+	case subscriptionmatch.FieldSkill:
+		m.ResetSkill()
+		return nil
+	case subscriptionmatch.FieldLeaverStatus:
+		m.ResetLeaverStatus()
+		return nil
+	case subscriptionmatch.FieldPartySize:
+		m.ResetPartySize()
+		return nil
+	}
+	return fmt.Errorf("unknown SubscriptionMatch field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *SubscriptionMatchMutation) AddedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *SubscriptionMatchMutation) AddedIDs(name string) []ent.Value {
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *SubscriptionMatchMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *SubscriptionMatchMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *SubscriptionMatchMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *SubscriptionMatchMutation) EdgeCleared(name string) bool {
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *SubscriptionMatchMutation) ClearEdge(name string) error {
+	return fmt.Errorf("unknown SubscriptionMatch unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *SubscriptionMatchMutation) ResetEdge(name string) error {
+	return fmt.Errorf("unknown SubscriptionMatch edge %s", name)
 }

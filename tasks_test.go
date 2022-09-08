@@ -8,20 +8,20 @@ import (
 
 func Test_getNewMatchPlayersByMatchId(t *testing.T) {
 	type args struct {
-		subNewMatchPlayers []*dto.MatchPlayer
+		subNewMatchPlayers []*dto.MatchPlayerDto
 	}
 	tests := []struct {
 		name       string
 		args       args
-		wantResult map[int64][]*dto.MatchPlayer
+		wantResult map[int64][]*dto.MatchPlayerDto
 	}{
-		{name: "tmp", args: struct{ subNewMatchPlayers []*dto.MatchPlayer }{
-			[]*dto.MatchPlayer{
+		{name: "tmp", args: struct{ subNewMatchPlayers []*dto.MatchPlayerDto }{
+			[]*dto.MatchPlayerDto{
 				{MatchID: 1, PlayerID: "1"},
 				{MatchID: 1, PlayerID: "2"},
 				{MatchID: 2, PlayerID: "2"},
 			},
-		}, wantResult: map[int64][]*dto.MatchPlayer{
+		}, wantResult: map[int64][]*dto.MatchPlayerDto{
 			1: {{MatchID: 1, PlayerID: "1"}, {MatchID: 1, PlayerID: "2"}},
 			2: {{MatchID: 2, PlayerID: "2"}},
 		}},

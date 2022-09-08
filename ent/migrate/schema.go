@@ -57,10 +57,39 @@ var (
 			},
 		},
 	}
+	// SubscriptionMatchesColumns holds the columns for the "subscription_matches" table.
+	SubscriptionMatchesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "create_time", Type: field.TypeTime},
+		{Name: "update_time", Type: field.TypeTime},
+		{Name: "match_id", Type: field.TypeInt64},
+		{Name: "player_id", Type: field.TypeString},
+		{Name: "player_slot", Type: field.TypeInt},
+		{Name: "radiant_win", Type: field.TypeBool},
+		{Name: "duration", Type: field.TypeInt},
+		{Name: "game_mode", Type: field.TypeInt},
+		{Name: "lobby_type", Type: field.TypeInt},
+		{Name: "hero_id", Type: field.TypeInt},
+		{Name: "start_time", Type: field.TypeInt},
+		{Name: "version", Type: field.TypeInt},
+		{Name: "kills", Type: field.TypeInt},
+		{Name: "deaths", Type: field.TypeInt},
+		{Name: "assists", Type: field.TypeInt},
+		{Name: "skill", Type: field.TypeInt, Nullable: true},
+		{Name: "leaver_status", Type: field.TypeInt},
+		{Name: "party_size", Type: field.TypeInt},
+	}
+	// SubscriptionMatchesTable holds the schema information for the "subscription_matches" table.
+	SubscriptionMatchesTable = &schema.Table{
+		Name:       "subscription_matches",
+		Columns:    SubscriptionMatchesColumns,
+		PrimaryKey: []*schema.Column{SubscriptionMatchesColumns[0]},
+	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		HerosTable,
 		SubscriptionsTable,
+		SubscriptionMatchesTable,
 	}
 )
 

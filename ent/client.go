@@ -12,6 +12,7 @@ import (
 
 	"github.com/Bpazy/behappy/ent/hero"
 	"github.com/Bpazy/behappy/ent/subscription"
+	"github.com/Bpazy/behappy/ent/subscriptionmatch"
 
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
@@ -26,6 +27,8 @@ type Client struct {
 	Hero *HeroClient
 	// Subscription is the client for interacting with the Subscription builders.
 	Subscription *SubscriptionClient
+	// SubscriptionMatch is the client for interacting with the SubscriptionMatch builders.
+	SubscriptionMatch *SubscriptionMatchClient
 }
 
 // NewClient creates a new client configured with the given options.
@@ -41,6 +44,7 @@ func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
 	c.Hero = NewHeroClient(c.config)
 	c.Subscription = NewSubscriptionClient(c.config)
+	c.SubscriptionMatch = NewSubscriptionMatchClient(c.config)
 }
 
 // Open opens a database/sql.DB specified by the driver name and
@@ -72,10 +76,11 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	cfg := c.config
 	cfg.driver = tx
 	return &Tx{
-		ctx:          ctx,
-		config:       cfg,
-		Hero:         NewHeroClient(cfg),
-		Subscription: NewSubscriptionClient(cfg),
+		ctx:               ctx,
+		config:            cfg,
+		Hero:              NewHeroClient(cfg),
+		Subscription:      NewSubscriptionClient(cfg),
+		SubscriptionMatch: NewSubscriptionMatchClient(cfg),
 	}, nil
 }
 
@@ -93,10 +98,11 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	cfg := c.config
 	cfg.driver = &txDriver{tx: tx, drv: c.driver}
 	return &Tx{
-		ctx:          ctx,
-		config:       cfg,
-		Hero:         NewHeroClient(cfg),
-		Subscription: NewSubscriptionClient(cfg),
+		ctx:               ctx,
+		config:            cfg,
+		Hero:              NewHeroClient(cfg),
+		Subscription:      NewSubscriptionClient(cfg),
+		SubscriptionMatch: NewSubscriptionMatchClient(cfg),
 	}, nil
 }
 
@@ -127,6 +133,7 @@ func (c *Client) Close() error {
 func (c *Client) Use(hooks ...Hook) {
 	c.Hero.Use(hooks...)
 	c.Subscription.Use(hooks...)
+	c.SubscriptionMatch.Use(hooks...)
 }
 
 // HeroClient is a client for the Hero schema.
@@ -307,4 +314,94 @@ func (c *SubscriptionClient) GetX(ctx context.Context, id int) *Subscription {
 // Hooks returns the client hooks.
 func (c *SubscriptionClient) Hooks() []Hook {
 	return c.hooks.Subscription
+}
+
+// SubscriptionMatchClient is a client for the SubscriptionMatch schema.
+type SubscriptionMatchClient struct {
+	config
+}
+
+// NewSubscriptionMatchClient returns a client for the SubscriptionMatch from the given config.
+func NewSubscriptionMatchClient(c config) *SubscriptionMatchClient {
+	return &SubscriptionMatchClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `subscriptionmatch.Hooks(f(g(h())))`.
+func (c *SubscriptionMatchClient) Use(hooks ...Hook) {
+	c.hooks.SubscriptionMatch = append(c.hooks.SubscriptionMatch, hooks...)
+}
+
+// Create returns a builder for creating a SubscriptionMatch entity.
+func (c *SubscriptionMatchClient) Create() *SubscriptionMatchCreate {
+	mutation := newSubscriptionMatchMutation(c.config, OpCreate)
+	return &SubscriptionMatchCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of SubscriptionMatch entities.
+func (c *SubscriptionMatchClient) CreateBulk(builders ...*SubscriptionMatchCreate) *SubscriptionMatchCreateBulk {
+	return &SubscriptionMatchCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for SubscriptionMatch.
+func (c *SubscriptionMatchClient) Update() *SubscriptionMatchUpdate {
+	mutation := newSubscriptionMatchMutation(c.config, OpUpdate)
+	return &SubscriptionMatchUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *SubscriptionMatchClient) UpdateOne(sm *SubscriptionMatch) *SubscriptionMatchUpdateOne {
+	mutation := newSubscriptionMatchMutation(c.config, OpUpdateOne, withSubscriptionMatch(sm))
+	return &SubscriptionMatchUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *SubscriptionMatchClient) UpdateOneID(id int) *SubscriptionMatchUpdateOne {
+	mutation := newSubscriptionMatchMutation(c.config, OpUpdateOne, withSubscriptionMatchID(id))
+	return &SubscriptionMatchUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for SubscriptionMatch.
+func (c *SubscriptionMatchClient) Delete() *SubscriptionMatchDelete {
+	mutation := newSubscriptionMatchMutation(c.config, OpDelete)
+	return &SubscriptionMatchDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *SubscriptionMatchClient) DeleteOne(sm *SubscriptionMatch) *SubscriptionMatchDeleteOne {
+	return c.DeleteOneID(sm.ID)
+}
+
+// DeleteOne returns a builder for deleting the given entity by its id.
+func (c *SubscriptionMatchClient) DeleteOneID(id int) *SubscriptionMatchDeleteOne {
+	builder := c.Delete().Where(subscriptionmatch.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &SubscriptionMatchDeleteOne{builder}
+}
+
+// Query returns a query builder for SubscriptionMatch.
+func (c *SubscriptionMatchClient) Query() *SubscriptionMatchQuery {
+	return &SubscriptionMatchQuery{
+		config: c.config,
+	}
+}
+
+// Get returns a SubscriptionMatch entity by its id.
+func (c *SubscriptionMatchClient) Get(ctx context.Context, id int) (*SubscriptionMatch, error) {
+	return c.Query().Where(subscriptionmatch.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *SubscriptionMatchClient) GetX(ctx context.Context, id int) *SubscriptionMatch {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *SubscriptionMatchClient) Hooks() []Hook {
+	return c.hooks.SubscriptionMatch
 }

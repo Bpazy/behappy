@@ -11,3 +11,6 @@ type Hero func(*sql.Selector)
 
 // Subscription is the predicate function for subscription builders.
 type Subscription func(*sql.Selector)
+
+// SubscriptionMatch is the predicate function for subscriptionmatch builders.
+type SubscriptionMatch func(*sql.Selector)

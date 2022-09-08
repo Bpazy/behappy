@@ -1,10 +1,6 @@
 package dto
 
-import (
-	"gorm.io/gorm"
-)
-
-type MatchPlayer struct {
+type MatchPlayerDto struct {
 	MatchID      int64  `json:"match_id" gorm:"index"`
 	PlayerID     string `gorm:"index"`
 	PlayerSlot   int    `json:"player_slot" gorm:"not null"`
@@ -21,17 +17,16 @@ type MatchPlayer struct {
 	Skill        *int   `json:"skill"`
 	LeaverStatus int    `json:"leaver_status" gorm:"not null"`
 	PartySize    int    `json:"party_size" gorm:"not null"`
-	gorm.Model
 }
 
-func (m MatchPlayer) IsWin() bool {
+func (m MatchPlayerDto) IsWin() bool {
 	if m.PlayerSlot < 127 {
 		return m.RadiantWin
 	}
 	return !m.RadiantWin
 }
 
-func (m MatchPlayer) SkillString() string {
+func (m MatchPlayerDto) SkillString() string {
 	if m.Skill == nil {
 		return "Unknown"
 	}
@@ -44,7 +39,7 @@ func (m MatchPlayer) SkillString() string {
 	return "Normal"
 }
 
-func (m MatchPlayer) DurationMinutes() int {
+func (m MatchPlayerDto) DurationMinutes() int {
 	return m.Duration / 60
 }
 

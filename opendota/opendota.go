@@ -8,7 +8,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func GetMatchPlayers(playerID string) (result []dto.MatchPlayer) {
+func GetMatchPlayers(playerID string) (result []dto.MatchPlayerDto) {
 	r, err := http.Client.R().Get(fmt.Sprintf("https://api.opendota.com/api/players/%s/recentMatches", playerID))
 	if err != nil {
 		logrus.Printf("从 opendota 获取玩家比赛列表失败: %+v", err)

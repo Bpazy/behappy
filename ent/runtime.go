@@ -8,6 +8,7 @@ import (
 	"github.com/Bpazy/behappy/ent/hero"
 	"github.com/Bpazy/behappy/ent/schema"
 	"github.com/Bpazy/behappy/ent/subscription"
+	"github.com/Bpazy/behappy/ent/subscriptionmatch"
 )
 
 // The init function reads all schema descriptors with runtime code
@@ -44,4 +45,19 @@ func init() {
 	subscription.DefaultUpdateTime = subscriptionDescUpdateTime.Default.(func() time.Time)
 	// subscription.UpdateDefaultUpdateTime holds the default value on update for the update_time field.
 	subscription.UpdateDefaultUpdateTime = subscriptionDescUpdateTime.UpdateDefault.(func() time.Time)
+	subscriptionmatchMixin := schema.SubscriptionMatch{}.Mixin()
+	subscriptionmatchMixinFields0 := subscriptionmatchMixin[0].Fields()
+	_ = subscriptionmatchMixinFields0
+	subscriptionmatchFields := schema.SubscriptionMatch{}.Fields()
+	_ = subscriptionmatchFields
+	// subscriptionmatchDescCreateTime is the schema descriptor for create_time field.
+	subscriptionmatchDescCreateTime := subscriptionmatchMixinFields0[0].Descriptor()
+	// subscriptionmatch.DefaultCreateTime holds the default value on creation for the create_time field.
+	subscriptionmatch.DefaultCreateTime = subscriptionmatchDescCreateTime.Default.(func() time.Time)
+	// subscriptionmatchDescUpdateTime is the schema descriptor for update_time field.
+	subscriptionmatchDescUpdateTime := subscriptionmatchMixinFields0[1].Descriptor()
+	// subscriptionmatch.DefaultUpdateTime holds the default value on creation for the update_time field.
+	subscriptionmatch.DefaultUpdateTime = subscriptionmatchDescUpdateTime.Default.(func() time.Time)
+	// subscriptionmatch.UpdateDefaultUpdateTime holds the default value on update for the update_time field.
+	subscriptionmatch.UpdateDefaultUpdateTime = subscriptionmatchDescUpdateTime.UpdateDefault.(func() time.Time)
 }

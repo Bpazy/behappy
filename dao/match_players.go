@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-func GetMatchPlayer(matchID int64, playerID string) *dto.MatchPlayer {
+func GetMatchPlayer(matchID int64, playerID string) *dto.MatchPlayerDto {
 	if matchID == 0 || playerID == "" {
 		return nil
 	}
@@ -15,18 +15,18 @@ func GetMatchPlayer(matchID int64, playerID string) *dto.MatchPlayer {
 		"match_id":  matchID,
 		"player_id": playerID,
 	}
-	mp := dto.MatchPlayer{}
+	mp := dto.MatchPlayerDto{}
 	if err := db.Where(s).First(&mp).Error; err != nil {
 		return nil
 	}
 	return &mp
 }
 
-func ListRecentMatchPlayers(playerID string) []*dto.MatchPlayer {
+func ListRecentMatchPlayers(playerID string) []*dto.MatchPlayerDto {
 	s := map[string]interface{}{
 		"player_id": playerID,
 	}
-	var mp []*dto.MatchPlayer
+	var mp []*dto.MatchPlayerDto
 	if err := db.Where(s).Order("created_at desc").Limit(30).Find(&mp).Error; err != nil {
 		logrus.Errorf("查询最近场次失败: %+v", err)
 		return mp
@@ -41,7 +41,7 @@ type PlayerMatchCount struct {
 
 func GetMatchesCount(playerIds []string) (result []PlayerMatchCount) {
 	lastWeek := time.Now().Add(24 * time.Hour).Add(-24 * 7 * time.Hour).Format("2006-01-02")
-	tx := db.Model(&dto.MatchPlayer{}).
+	tx := db.Model(&dto.MatchPlayerDto{}).
 		Select("player_id, count(*) as count").
 		Where("player_id in ? AND created_at >= ?", playerIds, lastWeek).
 		Group("player_id").
@@ -52,6 +52,6 @@ func GetMatchesCount(playerIds []string) (result []PlayerMatchCount) {
 	return result
 }
 
-func SaveMatchPlayer(mp *dto.MatchPlayer) {
+func SaveMatchPlayer(mp *dto.MatchPlayerDto) {
 	db.Create(mp)
 }
