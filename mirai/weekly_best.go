@@ -8,14 +8,14 @@ import (
 	"time"
 )
 
-func GenerateWeeklyBestImage(groupId int) string {
+func GenerateWeeklyBestImage(groupId int, start, end time.Time) string {
 	var playerIds []string
 	for _, player := range dao.ListSubPlayersByGroupId(groupId) {
 		playerIds = append(playerIds, player.PlayerID)
 	}
 
 	max := &dao.PlayerMatchCount{}
-	for _, mc := range dao.GetMatchesCount(playerIds) {
+	for _, mc := range dao.GetMatchesCount(playerIds, start, end) {
 		if max == nil || (mc.Count != 0 && max.Count < mc.Count) {
 			max = &mc
 		}
@@ -24,10 +24,9 @@ func GenerateWeeklyBestImage(groupId int) string {
 		return ""
 	}
 
-	lastWeek := time.Now().Add(-24 * 7 * time.Hour)
-	year, week := lastWeek.ISOWeek()
+	year, week := start.ISOWeek()
 	player := dao.GetSubscriptionDto(groupId, max.PlayerID)
-	path, err := images.HonorTemplate(player.Name(), year, week, int(lastWeek.Month()), max.Count)
+	path, err := images.HonorTemplate(player.Name(), year, week, int(start.Month()), max.Count)
 	if err != nil {
 		panic(fmt.Errorf("生成图像失败: %+v", err))
 	}

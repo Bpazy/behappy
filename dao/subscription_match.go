@@ -5,7 +5,7 @@ import (
 	"github.com/Bpazy/behappy/dto"
 	"github.com/Bpazy/behappy/ent"
 	"github.com/Bpazy/behappy/ent/subscriptionmatch"
-	"github.com/Bpazy/behappy/util/btime"
+	"time"
 )
 
 func GetMatchPlayer(matchID int64, playerID string) *dto.MatchPlayerDto {
@@ -44,8 +44,7 @@ type PlayerMatchCount struct {
 	Count    int64  `json:"count"`
 }
 
-func GetMatchesCount(playerIds []string) (result []PlayerMatchCount) {
-	start, end := btime.GetLastWeek()
+func GetMatchesCount(playerIds []string, start, end time.Time) (result []PlayerMatchCount) {
 	client.SubscriptionMatch.Query().
 		Where(
 			subscriptionmatch.And(

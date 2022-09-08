@@ -4,6 +4,7 @@ import (
 	"github.com/Bpazy/behappy/command"
 	"github.com/Bpazy/behappy/dao"
 	"github.com/Bpazy/behappy/mirai"
+	"github.com/Bpazy/behappy/util/btime"
 )
 
 type PlatformWeeklyBestCommand struct {
@@ -11,7 +12,7 @@ type PlatformWeeklyBestCommand struct {
 }
 
 func (s *PlatformWeeklyBestCommand) Keyword() string {
-	return "全平台最佳劳模"
+	return "生成全平台上周劳模"
 }
 
 func (s *PlatformWeeklyBestCommand) Run(_ interface{}, _ string) (msgType command.MsgType, result string) {
@@ -20,7 +21,7 @@ func (s *PlatformWeeklyBestCommand) Run(_ interface{}, _ string) (msgType comman
 }
 
 func (s *PlatformWeeklyBestCommand) Example() string {
-	return "全平台最佳劳模"
+	return "生成全平台上周劳模"
 }
 
 func (s *PlatformWeeklyBestCommand) Hidden() bool {
@@ -29,8 +30,9 @@ func (s *PlatformWeeklyBestCommand) Hidden() bool {
 
 func (s *PlatformWeeklyBestCommand) JustGo() {
 	groupIds := dao.ListAllGroupIds()
+	start, end := btime.GetLastWeekRange()
 	for _, groupId := range groupIds {
-		path := mirai.GenerateWeeklyBestImage(groupId)
+		path := mirai.GenerateWeeklyBestImage(groupId, start, end)
 		if path == "" {
 			continue
 		}

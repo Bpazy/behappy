@@ -29,7 +29,10 @@ func receiveMessage() func(c *gin.Context) {
 		e := NewEvent(all)
 		logrus.Debugf("接受到来自 Mirai 的事件：%s", e)
 		handleMessage(e)
-		c.JSON(200, nil)
+		// 返回空指令给 mirai-http-api
+		c.JSON(200, map[string]string{
+			"command": "",
+		})
 	}
 }
 
@@ -55,8 +58,12 @@ func dispatchGroupMessage(e *Event) {
 		if mt == command.TypeText && ret != "" {
 			NewMessageSender().SendGroupMessage(e.Sender.Group.ID, ret)
 		}
-		if mt == command.TypeImage && ret != "" {
-			NewMessageSender().SendGroupImageMessage(e.Sender.Group.ID, ret)
+		if mt == command.TypeImage {
+			if ret != "" {
+				NewMessageSender().SendGroupImageMessage(e.Sender.Group.ID, ret)
+			} else {
+				NewMessageSender().SendGroupMessage(e.Sender.Group.ID, "惨的，这段时间没人刀，DeadGame 坐实了")
+			}
 		}
 	}
 	if !anyMatch {

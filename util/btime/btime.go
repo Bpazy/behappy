@@ -2,12 +2,17 @@ package btime
 
 import "time"
 
-func GetLastWeek() (start time.Time, end time.Time) {
-	monday := GetThisWeekMonday()
+func GetLastWeekRange() (start time.Time, end time.Time) {
+	monday := GetCurrentWeekMonday()
 	return monday.AddDate(0, 0, -7), monday
 }
 
-func GetThisWeekMonday() time.Time {
+func GetCurrentWeekRange() (start time.Time, end time.Time) {
+	monday := GetCurrentWeekMonday()
+	return monday, monday.AddDate(0, 0, 7)
+}
+
+func GetCurrentWeekMonday() time.Time {
 	now := time.Now()
 
 	offset := int(time.Monday - now.Weekday())
