@@ -1,5 +1,31 @@
 package dto
 
+import "github.com/Bpazy/behappy/ent"
+
+func FromSubscriptionMatch(sm *ent.SubscriptionMatch) *MatchPlayerDto {
+	if sm == nil {
+		return nil
+	}
+	return &MatchPlayerDto{
+		MatchID:      sm.MatchID,
+		PlayerID:     sm.PlayerID,
+		PlayerSlot:   sm.PlayerSlot,
+		RadiantWin:   sm.RadiantWin,
+		Duration:     sm.Duration,
+		GameMode:     sm.GameMode,
+		LobbyType:    sm.LobbyType,
+		HeroID:       sm.HeroID,
+		StartTime:    sm.StartTime,
+		Version:      sm.Version,
+		Kills:        sm.Kills,
+		Deaths:       sm.Deaths,
+		Assists:      sm.Assists,
+		Skill:        sm.Skill,
+		LeaverStatus: sm.LeaverStatus,
+		PartySize:    sm.PartySize,
+	}
+}
+
 type MatchPlayerDto struct {
 	MatchID      int64  `json:"match_id" gorm:"index"`
 	PlayerID     string `gorm:"index"`
