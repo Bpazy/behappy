@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/Bpazy/behappy/config"
 	"github.com/Bpazy/behappy/ent"
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/sirupsen/logrus"
 )
 
