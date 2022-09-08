@@ -27,22 +27,22 @@ func FromSubscriptionMatch(sm *ent.SubscriptionMatch) *MatchPlayerDto {
 }
 
 type MatchPlayerDto struct {
-	MatchID      int64  `json:"match_id" gorm:"index"`
-	PlayerID     string `gorm:"index"`
-	PlayerSlot   int    `json:"player_slot" gorm:"not null"`
-	RadiantWin   bool   `json:"radiant_win" gorm:"not null"`
-	Duration     int    `json:"duration" gorm:"not null"` // Seconds
-	GameMode     int    `json:"game_mode" gorm:"not null"`
-	LobbyType    int    `json:"lobby_type" gorm:"not null"`
-	HeroID       int    `json:"hero_id" gorm:"not null"`
-	StartTime    int    `json:"start_time" gorm:"not null"`
-	Version      int    `json:"version" gorm:"not null"`
-	Kills        int    `json:"kills" gorm:"not null"`
-	Deaths       int    `json:"deaths" gorm:"not null"`
-	Assists      int    `json:"assists" gorm:"not null"`
-	Skill        *int   `json:"skill"`
-	LeaverStatus int    `json:"leaver_status" gorm:"not null"`
-	PartySize    int    `json:"party_size" gorm:"not null"`
+	PlayerID     string
+	MatchID      int64 `json:"match_id"`
+	PlayerSlot   int   `json:"player_slot"`
+	RadiantWin   bool  `json:"radiant_win"`
+	Duration     int   `json:"duration"` // Seconds
+	GameMode     int   `json:"game_mode"`
+	LobbyType    int   `json:"lobby_type"`
+	HeroID       int   `json:"hero_id"`
+	StartTime    int   `json:"start_time"`
+	Version      int   `json:"version"`
+	Kills        int   `json:"kills"`
+	Deaths       int   `json:"deaths"`
+	Assists      int   `json:"assists"`
+	Skill        *int  `json:"skill"`
+	LeaverStatus int   `json:"leaver_status"`
+	PartySize    int   `json:"party_size"`
 }
 
 func (m MatchPlayerDto) IsWin() bool {
