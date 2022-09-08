@@ -2,15 +2,15 @@ package behappy
 
 import (
 	"fmt"
-	"github.com/Bpazy/behappy/bjson"
 	"github.com/Bpazy/behappy/config"
 	"github.com/Bpazy/behappy/dao"
 	"github.com/Bpazy/behappy/dto"
-	"github.com/Bpazy/behappy/http"
 	"github.com/Bpazy/behappy/mirai"
 	"github.com/Bpazy/behappy/opendota"
 	"github.com/Bpazy/behappy/templates"
-	"github.com/Bpazy/behappy/util"
+	"github.com/Bpazy/behappy/util/bjson"
+	"github.com/Bpazy/behappy/util/http"
+	"github.com/Bpazy/behappy/util/kda"
 	"github.com/sirupsen/logrus"
 	"strconv"
 	"strings"
@@ -103,8 +103,8 @@ func joinKda(matchPlayers []*dto.MatchPlayerDto, groupID int) string {
 	pretty := ""
 	for _, mp := range matchPlayers {
 		sp := dao.GetSubscriptionDto(groupID, mp.PlayerID)
-		kda := util.GetKda(mp.Kills, mp.Deaths, mp.Assists)
-		pretty += fmt.Sprintf("%s玩%s KDA: %s (%d, %d, %d)\n", sp.Name(), dao.GetHeroName(mp.HeroID), kda, mp.Kills, mp.Deaths, mp.Assists)
+		k := kda.GetKda(mp.Kills, mp.Deaths, mp.Assists)
+		pretty += fmt.Sprintf("%s玩%s KDA: %s (%d, %d, %d)\n", sp.Name(), dao.GetHeroName(mp.HeroID), k, mp.Kills, mp.Deaths, mp.Assists)
 	}
 	return pretty[:len(pretty)-1]
 }

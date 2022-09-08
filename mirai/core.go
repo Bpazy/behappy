@@ -3,9 +3,9 @@ package mirai
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/Bpazy/behappy/bjson"
 	"github.com/Bpazy/behappy/config"
-	"github.com/Bpazy/behappy/http"
+	"github.com/Bpazy/behappy/util/bjson"
+	"github.com/Bpazy/behappy/util/http"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/errgo.v2/fmt/errors"
 	"strconv"

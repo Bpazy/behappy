@@ -3,7 +3,7 @@ package mirai
 import (
 	"fmt"
 	"github.com/Bpazy/behappy/dao"
-	"github.com/Bpazy/behappy/images"
+	"github.com/Bpazy/behappy/util/images"
 	"github.com/sirupsen/logrus"
 	"time"
 )

@@ -1,7 +1,7 @@
 package http
 
 import (
-	"github.com/Bpazy/behappy/bjson"
+	"github.com/Bpazy/behappy/util/bjson"
 	"github.com/sirupsen/logrus"
 )
 

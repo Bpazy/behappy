@@ -3,7 +3,7 @@ package images
 import (
 	"embed"
 	"fmt"
-	"github.com/Bpazy/behappy/berrors"
+	"github.com/Bpazy/behappy/util/berrors"
 	"github.com/flopp/go-findfont"
 	"github.com/golang/freetype"
 	"github.com/golang/freetype/truetype"

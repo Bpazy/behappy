@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/Bpazy/behappy/dto"
-	"github.com/Bpazy/behappy/http"
+	"github.com/Bpazy/behappy/util/http"
 	"github.com/sirupsen/logrus"
 )
 

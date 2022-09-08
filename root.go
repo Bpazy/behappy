@@ -1,11 +1,11 @@
 package behappy
 
 import (
-	"github.com/Bpazy/behappy/berrors"
 	"github.com/Bpazy/behappy/config"
 	"github.com/Bpazy/behappy/dao"
 	"github.com/Bpazy/behappy/mirai"
 	"github.com/Bpazy/behappy/mirai/command"
+	"github.com/Bpazy/behappy/util/berrors"
 	"github.com/robfig/cron/v3"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
