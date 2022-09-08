@@ -3,7 +3,9 @@ package dao
 import (
 	"context"
 	"github.com/Bpazy/behappy/dto"
+	"github.com/Bpazy/behappy/ent"
 	"github.com/Bpazy/behappy/ent/subscriptionmatch"
+	"github.com/Bpazy/behappy/util/btime"
 )
 
 func GetMatchPlayer(matchID int64, playerID string) *dto.MatchPlayerDto {
@@ -38,32 +40,24 @@ func ListRecentMatchPlayers(playerID string) []*dto.MatchPlayerDto {
 }
 
 type PlayerMatchCount struct {
-	PlayerID string
-	Count    int64
+	PlayerID string `json:"player_id"`
+	Count    int64  `json:"count"`
 }
 
 func GetMatchesCount(playerIds []string) (result []PlayerMatchCount) {
-	//lastWeek := time.Now().Add(24 * time.Hour).Add(-24 * 7 * time.Hour)
-	//t := time.Date(lastWeek.Year(), lastWeek.Month(), lastWeek.Day(), 0, 0, 0, 0, lastWeek.Location())
-
-	//tx := db.Model(&dto.MatchPlayerDto{}).
-	//	Select("player_id, count(*) as count").
-	//	Where("player_id in ? AND created_at >= ?", playerIds, lastWeek).
-	//	Group("player_id").
-	//	Find(&result)
-	//if tx.Error != nil {
-	//	panic(fmt.Errorf("查询最近场次失败: %+v", tx.Error))
-	//}
-	//return result
-	//client.SubscriptionMatch.Query().
-	//	Where(
-	//		subscriptionmatch.And(
-	//			subscriptionmatch.PlayerIDIn(playerIds...),
-	//			subscriptionmatch.CreateTimeGTE(t),
-	//		),
-	//	).
-	//	GroupBy(subscriptionmatch.FieldPlayerID)
-	return []PlayerMatchCount{}
+	start, end := btime.GetLastWeek()
+	client.SubscriptionMatch.Query().
+		Where(
+			subscriptionmatch.And(
+				subscriptionmatch.PlayerIDIn(playerIds...),
+				subscriptionmatch.CreateTimeGTE(start),
+				subscriptionmatch.CreateTimeLT(end),
+			),
+		).
+		GroupBy(subscriptionmatch.FieldPlayerID).
+		Aggregate(ent.Count()).
+		ScanX(context.TODO(), &result)
+	return
 }
 
 func SaveMatchPlayer(mp *dto.MatchPlayerDto) {

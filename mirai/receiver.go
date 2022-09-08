@@ -16,7 +16,7 @@ func ServeMirai() {
 	r := gin.New()
 	r.Use(gin.Recovery())
 	logrus.SetLevel(logrus.DebugLevel)
-	r.POST("/post", receiveMessage())
+	r.Any("/post", receiveMessage())
 
 	logrus.Infof("开始监听 %s, 等待 Mirai 事件上报", config.Addr)
 	logrus.Fatal(r.Run(config.Addr))
