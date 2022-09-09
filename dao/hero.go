@@ -5,6 +5,7 @@ import (
 	"github.com/Bpazy/behappy/dto"
 	"github.com/Bpazy/behappy/ent"
 	"github.com/Bpazy/behappy/ent/hero"
+	"github.com/Bpazy/behappy/util/berrors"
 	"strconv"
 )
 
@@ -24,9 +25,13 @@ func HasHeroData() bool {
 }
 
 func AddHeros(heros []dto.HeroDto) {
+	ctx := context.Background()
+	tx := berrors.Unwrap(client.Tx(ctx))
+	tx.Hero.Delete().ExecX(ctx)
 	bulk := make([]*ent.HeroCreate, len(heros))
 	for i, h := range heros {
-		bulk[i] = client.Hero.Create().SetHeroID(h.ID).SetName(h.Name).SetLocalizedName(h.LocalizedName)
+		bulk[i] = tx.Hero.Create().SetHeroID(h.ID).SetName(h.Name).SetLocalizedName(h.LocalizedName)
 	}
-	client.Hero.CreateBulk(bulk...).SaveX(context.TODO())
+	tx.Hero.CreateBulk(bulk...).SaveX(ctx)
+	berrors.Must(tx.Commit())
 }
