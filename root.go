@@ -72,13 +72,29 @@ func startOpenDota() {
 		InitHeros()
 	}
 
+	startCron()
+}
+
+func startCron() {
 	c := cron.New(cron.WithChain(
 		cron.Recover(cron.DefaultLogger), // or use cron.DefaultLogger
 	))
 	// 每五分钟
 	berrors.Unwrap(c.AddFunc("@every 5m", func() { SubscribeFunc() }))
+	// https://en.wikipedia.org/wiki/Cron
+	// ┌───────────── minute (0 - 59)
+	// │ ┌───────────── hour (0 - 23)
+	// │ │ ┌───────────── day of the month (1 - 31)
+	// │ │ │ ┌───────────── month (1 - 12)
+	// │ │ │ │ ┌───────────── day of the week (0 - 6) (Sunday to Saturday;
+	// │ │ │ │ │                                   7 is also Sunday on some systems)
+	// │ │ │ │ │
+	// │ │ │ │ │
+	// * * * * * <command to execute>
 	// 每周一早晨九点
 	berrors.Unwrap(c.AddFunc("0 9 * * 0", func() { WeeklyBest() }))
+	// 每天凌晨四点
+	berrors.Unwrap(c.AddFunc("0 4 * * *", func() { InitHeros() }))
 
 	c.Start()
 }
