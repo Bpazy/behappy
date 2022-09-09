@@ -30,7 +30,7 @@ func AddHeros(heros []dto.HeroDto) {
 	tx.Hero.Delete().ExecX(ctx)
 	bulk := make([]*ent.HeroCreate, len(heros))
 	for i, h := range heros {
-		bulk[i] = client.Hero.Create().SetHeroID(h.ID).SetName(h.Name).SetLocalizedName(h.LocalizedName)
+		bulk[i] = tx.Hero.Create().SetHeroID(h.ID).SetName(h.Name).SetLocalizedName(h.LocalizedName)
 	}
 	tx.Hero.CreateBulk(bulk...).SaveX(ctx)
 	berrors.Must(tx.Commit())
