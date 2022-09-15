@@ -12,7 +12,7 @@ import (
 func GetHeroName(heroID int) string {
 	h := client.Hero.Query().
 		Where(hero.HeroID(heroID)).
-		FirstX(context.TODO())
+		FirstX(context.Background())
 	if h != nil {
 		return h.LocalizedName
 	}
@@ -20,7 +20,7 @@ func GetHeroName(heroID int) string {
 }
 
 func HasHeroData() bool {
-	h := client.Hero.Query().FirstX(context.TODO())
+	h := client.Hero.Query().FirstX(context.Background())
 	return h != nil
 }
 

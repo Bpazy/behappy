@@ -19,7 +19,7 @@ func GetMatchPlayer(matchID int64, playerID string) *dto.MatchPlayerDto {
 				subscriptionmatch.MatchID(matchID)),
 			subscriptionmatch.PlayerID(playerID),
 		).
-		FirstX(context.TODO())
+		FirstX(context.Background())
 	if sm == nil {
 		return nil
 	}
@@ -31,7 +31,7 @@ func ListRecentMatchPlayers(playerID string) []*dto.MatchPlayerDto {
 		Query().
 		Where(subscriptionmatch.PlayerID(playerID)).
 		Limit(30).
-		AllX(context.TODO())
+		AllX(context.Background())
 	result := make([]*dto.MatchPlayerDto, len(all))
 	for i, m := range all {
 		result[i] = dto.FromSubscriptionMatch(m)
@@ -55,7 +55,7 @@ func GetMatchesCount(playerIds []string, start, end time.Time) (result []PlayerM
 		).
 		GroupBy(subscriptionmatch.FieldPlayerID).
 		Aggregate(ent.Count()).
-		ScanX(context.TODO(), &result)
+		ScanX(context.Background(), &result)
 	return
 }
 
@@ -77,5 +77,5 @@ func SaveMatchPlayer(mp *dto.MatchPlayerDto) {
 		SetNillableSkill(mp.Skill).
 		SetLeaverStatus(mp.LeaverStatus).
 		SetPartySize(mp.PartySize).
-		SaveX(context.TODO())
+		SaveX(context.Background())
 }

@@ -12,21 +12,21 @@ func ListAllPlayerIDs() (pids []string) {
 		Query().
 		Unique(true).
 		Select(subscription.FieldSteamID).
-		StringsX(context.TODO())
+		StringsX(context.Background())
 }
 
 func ListSubPlayersByPlayerId(playerID string) []dto.SubscriptionDto {
 	return convert(client.Subscription.
 		Query().
 		Where(subscription.SteamID(playerID)).
-		AllX(context.TODO()))
+		AllX(context.Background()))
 }
 
 func ListSubPlayersByGroupId(groupID int) []dto.SubscriptionDto {
 	return convert(client.Subscription.
 		Query().
 		Where(subscription.GroupID(groupID)).
-		AllX(context.TODO()))
+		AllX(context.Background()))
 }
 
 func convert(subscriptions []*ent.Subscription) []dto.SubscriptionDto {
@@ -46,7 +46,7 @@ func ListAllGroupIds() []int {
 		Query().
 		Unique(true).
 		Select(subscription.FieldGroupID).
-		IntsX(context.TODO())
+		IntsX(context.Background())
 }
 
 func GetSubscription(groupID int, playerID string) *ent.Subscription {
@@ -58,7 +58,7 @@ func GetSubscription(groupID int, playerID string) *ent.Subscription {
 				subscription.SteamID(playerID),
 			),
 		).
-		FirstX(context.TODO())
+		FirstX(context.Background())
 }
 
 func GetSubscriptionDto(groupID int, playerID string) *dto.SubscriptionDto {
@@ -84,9 +84,9 @@ func SaveSubPlayer(groupId int, steamId string, alias string) {
 		SetGroupID(groupId).
 		SetSteamID(steamId).
 		SetAlias(alias).
-		SaveX(context.TODO())
+		SaveX(context.Background())
 }
 
 func UpdateSubPlayer(s *ent.Subscription) {
-	s.Update().SaveX(context.TODO())
+	s.Update().SaveX(context.Background())
 }
