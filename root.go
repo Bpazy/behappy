@@ -92,7 +92,7 @@ func startCron() {
 	// │ │ │ │ │
 	// * * * * * <command to execute>
 	// 每周一早晨九点
-	berrors.Unwrap(c.AddFunc("0 9 * * 0", func() { WeeklyBest() }))
+	berrors.Unwrap(c.AddFunc("0 9 * * 1", func() { WeeklyBest() }))
 	// 每天凌晨四点
 	berrors.Unwrap(c.AddFunc("0 4 * * *", func() { InitHeros() }))
 
