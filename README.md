@@ -4,6 +4,7 @@
 
 ![Build](https://github.com/Bpazy/behappy/workflows/Build/badge.svg)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=Bpazy_behappy&metric=alert_status)](https://sonarcloud.io/dashboard?id=Bpazy_behappy)
+![LICENSE](https://img.shields.io/github/license/Bpazy/behappy)
 
 Don't worry, be happy. 风力掀天浪打头，只须一笑不须愁。
 
