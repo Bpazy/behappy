@@ -5,7 +5,7 @@ import (
 	"github.com/Bpazy/behappy/dao"
 	"github.com/Bpazy/behappy/mirai"
 	"github.com/Bpazy/behappy/mirai/command"
-	"github.com/Bpazy/behappy/util/berrors"
+	"github.com/Bpazy/berrors"
 	"github.com/robfig/cron/v3"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"

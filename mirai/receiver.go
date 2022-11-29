@@ -3,7 +3,7 @@ package mirai
 import (
 	"github.com/Bpazy/behappy/command"
 	"github.com/Bpazy/behappy/config"
-	"github.com/Bpazy/behappy/util/berrors"
+	"github.com/Bpazy/berrors"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 	"io"

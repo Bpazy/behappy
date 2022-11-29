@@ -5,7 +5,7 @@ import (
 	"github.com/Bpazy/behappy/dto"
 	"github.com/Bpazy/behappy/ent"
 	"github.com/Bpazy/behappy/ent/hero"
-	"github.com/Bpazy/behappy/util/berrors"
+	"github.com/Bpazy/berrors"
 	"strconv"
 )
 
