@@ -1,6 +1,6 @@
 module github.com/Bpazy/behappy
 
-go 1.18
+go 1.19
 
 require (
 	entgo.io/ent v0.11.2
