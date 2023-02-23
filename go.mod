@@ -6,7 +6,7 @@ require (
 	entgo.io/ent v0.11.2
 	github.com/Bpazy/berrors v0.1.0
 	github.com/flopp/go-findfont v0.1.0
-	github.com/gin-gonic/gin v1.7.0
+	github.com/gin-gonic/gin v1.7.7
 	github.com/go-resty/resty/v2 v2.4.0
 	github.com/go-sql-driver/mysql v1.6.0
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0
